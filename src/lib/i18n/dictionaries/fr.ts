@@ -189,6 +189,8 @@ export const fr: Record<DictionaryKey, string> = {
   'step04.packageManagerPlaceholder': 'Précisez votre gestionnaire de paquets...',
   'step04.runtimeVersions': 'Versions runtime requises',
   'step04.forbiddenDeps': 'Dépendances interdites/déconseillées',
+  'step04.letClaudeDecide': 'Laisser Claude décider',
+  'step04.letClaudeDecideDesc': 'Pas sûr de votre stack ? Laissez votre agent IA analyser votre projet et choisir les meilleurs outils pour vous.',
 
   // ─── Step 05: Commands ──────────────────────────────────────
   'step05.installCommand': 'Commande d\'installation',

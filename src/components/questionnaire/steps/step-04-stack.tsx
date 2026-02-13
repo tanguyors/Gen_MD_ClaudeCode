@@ -10,6 +10,7 @@ import { SectionHeader } from '../section-header';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Sparkles } from 'lucide-react';
 import { OptionCardGroup } from '@/components/ui/option-card';
 import {
   FRONTEND_FRAMEWORK_OPTIONS,
@@ -52,6 +53,11 @@ export default function StepStack({ onNext, onPrev, onSkip, isFirst, isLast, sec
     },
   });
 
+  const handleLetClaudeDecide = () => {
+    updateSection('stack', { _claudeDecide: true } as never);
+    onNext();
+  };
+
   const onSubmit = (data: FormData) => {
     const { languagesStr, ...rest } = data;
     updateSection('stack', {
@@ -66,6 +72,20 @@ export default function StepStack({ onNext, onPrev, onSkip, isFirst, isLast, sec
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <SectionHeader sectionMeta={sectionMeta} stepNumber={stepNumber} totalSteps={totalSteps} />
+
+      <button
+        type="button"
+        onClick={handleLetClaudeDecide}
+        className="w-full flex items-center gap-4 p-5 rounded-2xl border-2 border-dashed border-[#FF8A71]/30 bg-[#FFF0ED]/50 hover:bg-[#FFF0ED] hover:border-[#FF8A71]/50 transition-all group"
+      >
+        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#FF8A71] to-[#FFB2A1] flex items-center justify-center text-white shrink-0 group-hover:scale-110 transition-transform">
+          <Sparkles size={22} />
+        </div>
+        <div className="text-left">
+          <span className="text-sm font-black text-slate-900 block">{t('step04.letClaudeDecide')}</span>
+          <span className="text-xs text-slate-500 leading-relaxed">{t('step04.letClaudeDecideDesc')}</span>
+        </div>
+      </button>
 
       <Input label={t('step04.languages')} {...register('languagesStr')} placeholder={t('step04.languagesPlaceholder')} />
 

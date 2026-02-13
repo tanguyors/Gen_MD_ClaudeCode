@@ -187,6 +187,8 @@ export const en = {
   'step04.packageManagerPlaceholder': 'Specify your package manager...',
   'step04.runtimeVersions': 'Required runtime versions',
   'step04.forbiddenDeps': 'Forbidden/discouraged dependencies',
+  'step04.letClaudeDecide': 'Let Claude decide',
+  'step04.letClaudeDecideDesc': 'Not sure about your stack? Let your AI agent analyze your project and choose the best tools for you.',
 
   // ─── Step 05: Commands ──────────────────────────────────────
   'step05.installCommand': 'Install command',

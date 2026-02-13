@@ -156,7 +156,9 @@ function renderWhatSection(data: Partial<Questionnaire>): string {
     }
   }
 
-  if (hasContent(data.stack as Record<string, unknown>)) {
+  if (data.stack?._claudeDecide) {
+    parts.push(renderSection('Stack', 3, '> **Agent:** Analyze the project structure, `package.json`, config files, and codebase to determine the full tech stack. Document your findings here before proceeding.'));
+  } else if (hasContent(data.stack as Record<string, unknown>)) {
     const s = data.stack!;
     const items: Array<[string, string | undefined]> = [
       ['Languages', s.languages?.join(', ')],

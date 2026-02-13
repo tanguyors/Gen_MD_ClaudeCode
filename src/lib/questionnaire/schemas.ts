@@ -75,6 +75,7 @@ export const RepoMapSchema = z.object({
 
 // Section 4: Stack & Dependencies
 export const StackSchema = z.object({
+  _claudeDecide: z.boolean().optional(),
   languages: z.array(z.string()).optional(),
   frontendFramework: z.string().optional(),
   backendFramework: z.string().optional(),
