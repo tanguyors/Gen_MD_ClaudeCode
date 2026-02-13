@@ -18,7 +18,11 @@
       "Bash(ls:*)",
       "Bash(pnpm add:*)",
       "mcp__gemini-design-mcp__snippet_frontend",
-      "Bash(cmd /c \"del /f /q nul\")"
+      "Bash(cmd /c \"del /f /q nul\")",
+      "Bash(dir:*)",
+      "Bash(cmd /c \"dir c:\\\\Users\\\\orsin\\\\Desktop\\\\Gen_MD_ClaudeCode\\\\public\")",
+      "Bash(cmd /c:*)",
+      "Bash(powershell -Command:*)"
     ]
   }
 }

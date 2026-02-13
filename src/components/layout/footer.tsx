@@ -32,32 +32,11 @@ export function Footer() {
           {t('footer.descriptionEnd')}
         </p>
 
-        <div className="w-full pt-8 border-t border-slate-200/50 flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="w-full pt-8 border-t border-slate-200/50 flex items-center justify-center">
           <p className="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
             {t('footer.madeWith')}{' '}
             <Heart size={14} className="fill-[#FF8A71] text-[#FF8A71] animate-pulse" /> {t('footer.forDevelopers')}
           </p>
-
-          <div className="flex items-center gap-6">
-            <Link
-              href="#"
-              className="text-xs font-bold text-slate-500 hover:text-[#FF8A71] transition-colors"
-            >
-              {t('footer.privacy')}
-            </Link>
-            <Link
-              href="#"
-              className="text-xs font-bold text-slate-500 hover:text-[#FF8A71] transition-colors"
-            >
-              {t('footer.terms')}
-            </Link>
-            <Link
-              href="#"
-              className="text-xs font-bold text-slate-500 hover:text-[#FF8A71] transition-colors"
-            >
-              {t('footer.github')}
-            </Link>
-          </div>
         </div>
       </div>
     </footer>
