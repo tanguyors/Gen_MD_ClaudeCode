@@ -1,0 +1,27 @@
+export const CANONICAL_STRUCTURE = {
+  preamble: ['alwaysOnBlock'] as const,
+  header: ['identity'] as const,
+  why: ['business', 'techGoals'] as const,
+  what: ['repoMap', 'stack', 'database', 'apiContracts', 'environments'] as const,
+  how: [
+    'commands',
+    'codeStandards',
+    'alwaysOnRules',
+    'security',
+    'performance',
+    'testing',
+    'cicd',
+    'observability',
+  ] as const,
+  supplementary: [
+    'uxUi',
+    'i18n',
+    'aiMl',
+    'documentation',
+    'agentPrefs',
+    'codePolicy',
+    'dod',
+    'governance',
+  ] as const,
+  appendix: ['examples', 'pitfalls'] as const,
+} as const;

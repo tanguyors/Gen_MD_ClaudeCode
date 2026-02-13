@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx create-next-app:*)",
+      "Bash(robocopy:*)",
+      "Bash(dir /b)",
+      "Bash(pnpm install:*)",
+      "Bash(npx tsc:*)",
+      "Bash(pnpm build:*)",
+      "mcp__gemini-design-mcp__create_frontend",
+      "Bash(curl:*)",
+      "Bash(npx next dev:*)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "Bash(npx next build:*)",
+      "mcp__gemini-design-mcp__modify_frontend",
+      "Bash(timeout /t 8 /nobreak)",
+      "Bash(ls:*)",
+      "Bash(pnpm add:*)",
+      "mcp__gemini-design-mcp__snippet_frontend",
+      "Bash(cmd /c \"del /f /q nul\")"
+    ]
+  }
+}
