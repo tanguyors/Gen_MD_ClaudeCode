@@ -1,0 +1,27 @@
+# ClaudeMD Generator
+
+> Generate high-quality CLAUDE.md files from a guided questionnaire for AI coding agents.
+
+ClaudeMD Generator is a free web application that helps developers create structured CLAUDE.md instruction files for AI coding agents like Claude, Cursor, and Copilot. Through a 27-section guided questionnaire, it captures project context — stack, architecture, rules, commands, security policies — and generates a concise, actionable markdown file that agents read before working on your codebase.
+
+## Key Features
+
+- 27-section guided questionnaire covering identity, business context, stack, commands, security, testing, CI/CD, and more
+- Smart contextual options that adapt based on project type (SaaS, API, mobile, web app, etc.)
+- Optional GPT-4o AI enhancement to polish generated output
+- Automated quality scoring with coverage, verbosity, and rule checks
+- Live markdown editor for reviewing and editing before export
+- Multi-format export: .md file, clipboard, or ZIP with agent_docs/
+- Full English and French internationalization
+- 100% client-side data storage (localStorage) — no database, no accounts, no tracking
+- MCP integration support for tools like Gemini Design
+
+## Pages
+
+- / — Landing page explaining the tool and its value proposition
+- /questionnaire — The 27-step guided questionnaire wizard
+- /preview — Preview, edit, and export the generated CLAUDE.md file
+
+## Tech Stack
+
+Next.js 16 (App Router), TypeScript, Tailwind CSS 4, Zustand, React Hook Form, Zod, OpenAI GPT-4o (optional), Framer Motion, Lucide React

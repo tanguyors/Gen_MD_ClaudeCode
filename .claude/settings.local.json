@@ -22,7 +22,8 @@
       "Bash(dir:*)",
       "Bash(cmd /c \"dir c:\\\\Users\\\\orsin\\\\Desktop\\\\Gen_MD_ClaudeCode\\\\public\")",
       "Bash(cmd /c:*)",
-      "Bash(powershell -Command:*)"
+      "Bash(powershell -Command:*)",
+      "Bash(test:*)"
     ]
   }
 }

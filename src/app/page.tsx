@@ -170,6 +170,31 @@ export default function HomePage() {
               </Link>
             </div>
           </div>
+
+          {/* FAQ Section */}
+          <div className="relative pt-24 pb-8 max-w-3xl mx-auto">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl lg:text-4xl font-black text-slate-900 mb-4">{t('landing.faqTitle')}</h2>
+              <div className="w-20 h-1.5 bg-gradient-to-r from-[#FF8A71] to-[#FFB2A1] rounded-full mx-auto" />
+            </div>
+
+            <div className="space-y-6">
+              {([1, 2, 3, 4] as const).map((n) => (
+                <details
+                  key={n}
+                  className="group bg-white/70 backdrop-blur-sm border-2 border-white rounded-2xl shadow-[0_4px_20px_rgb(0,0,0,0.03)] overflow-hidden"
+                >
+                  <summary className="flex items-center justify-between cursor-pointer p-6 text-left font-bold text-slate-800 hover:text-[#FF8A71] transition-colors list-none">
+                    {t(`landing.faq${n}Q` as 'landing.faq1Q')}
+                    <span className="ml-4 text-slate-300 group-open:rotate-45 transition-transform text-2xl leading-none">+</span>
+                  </summary>
+                  <div className="px-6 pb-6 text-slate-600 leading-relaxed text-sm">
+                    {t(`landing.faq${n}A` as 'landing.faq1A')}
+                  </div>
+                </details>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
     </main>

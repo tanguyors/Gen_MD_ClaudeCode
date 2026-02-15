@@ -28,6 +28,15 @@ export const fr: Record<DictionaryKey, string> = {
   'landing.step3Desc': 'Téléchargez votre fichier CLAUDE.md généré et placez-le à la racine de votre dépôt pour commencer.',
   'landing.readyCta': 'Prêt à améliorer vos workflows IA ?',
   'landing.getStartedNow': 'Commencer maintenant',
+  'landing.faqTitle': 'Questions fréquentes',
+  'landing.faq1Q': 'C\'est quoi un fichier CLAUDE.md ?',
+  'landing.faq1A': 'Un CLAUDE.md est un fichier markdown structuré placé à la racine de votre projet. Les agents IA comme Claude, Cursor et Copilot le lisent avant de travailler pour comprendre votre stack, vos conventions, votre architecture et vos règles. C\'est comme un briefing pour votre développeur IA.',
+  'landing.faq2Q': 'Faut-il des connaissances techniques ?',
+  'landing.faq2A': 'Pas du tout. Le questionnaire vous guide étape par étape avec des options contextuelles et des valeurs par défaut intelligentes. Pour les sections techniques comme la stack, vous pouvez utiliser le bouton « Laisser Claude décider » pour que l\'agent IA s\'en charge.',
+  'landing.faq3Q': 'Mes données de projet sont-elles en sécurité ?',
+  'landing.faq3A': 'Oui. Toutes vos réponses sont stockées localement dans votre navigateur (localStorage). Il n\'y a aucune base de données, aucun compte utilisateur et aucune persistance côté serveur. Le seul appel externe se fait si vous activez l\'amélioration GPT-4o — et même là, rien n\'est stocké.',
+  'landing.faq4Q': 'Est-ce gratuit ?',
+  'landing.faq4A': 'Entièrement gratuit. La génération de base fonctionne 100% en local sans clé API. L\'amélioration GPT-4o est optionnelle et utilise votre propre clé OpenAI si vous choisissez de l\'activer.',
 
   // ─── Footer ─────────────────────────────────────────────────
   'footer.description': 'ClaudeMD Generator — Générez des fichiers',

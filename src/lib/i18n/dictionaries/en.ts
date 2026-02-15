@@ -26,6 +26,15 @@ export const en = {
   'landing.step3Desc': 'Download your generated CLAUDE.md file and place it in your repository root to start building.',
   'landing.readyCta': 'Ready to improve your AI workflows?',
   'landing.getStartedNow': 'Get started now',
+  'landing.faqTitle': 'Frequently Asked Questions',
+  'landing.faq1Q': 'What is a CLAUDE.md file?',
+  'landing.faq1A': 'A CLAUDE.md is a structured markdown file placed at the root of your project. AI coding agents like Claude, Cursor, and Copilot read it before working to understand your stack, conventions, architecture, and rules. Think of it as a briefing document for your AI developer.',
+  'landing.faq2Q': 'Do I need technical knowledge to use this tool?',
+  'landing.faq2A': 'Not at all. The questionnaire guides you step by step with smart defaults and contextual options. For technical sections like stack and dependencies, you can use the "Let Claude Decide" button to let the AI agent figure it out from your codebase.',
+  'landing.faq3Q': 'Is my project data safe?',
+  'landing.faq3A': 'Yes. All your answers are stored locally in your browser (localStorage). There is no database, no user accounts, and no server-side persistence. The only external call happens if you opt in to GPT-4o enhancement — and even then, nothing is stored.',
+  'landing.faq4Q': 'Is it free?',
+  'landing.faq4A': 'Completely free. The core generation works 100% locally without any API key. GPT-4o enhancement is optional and uses your own OpenAI key if you choose to enable it.',
 
   // ─── Footer ─────────────────────────────────────────────────
   'footer.description': 'ClaudeMD Generator — Generate high-quality',
