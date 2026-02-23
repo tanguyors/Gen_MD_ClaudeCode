@@ -503,7 +503,32 @@ function renderAgentTeamSection(data: Partial<Questionnaire>): string {
 
   const parts: string[] = [];
 
-  parts.push('> **Agent Team Mode** is enabled. This project uses specialized sub-agents working as a coordinated team.\n');
+  parts.push(`> **Agent Team Mode** is enabled. For complex, multi-step tasks you MUST spawn a team of specialized sub-agents instead of doing everything yourself.
+
+### When to use Agent Teams
+
+**ALWAYS spawn a team when:**
+- The task touches 3+ files or multiple modules
+- The task involves both frontend and backend changes
+- You need to refactor while keeping tests passing
+- The task has independent sub-tasks that can run in parallel
+- The user explicitly asks for a large feature, migration, or refactor
+
+**Do it yourself (no team) when:**
+- Single-file edits, bug fixes, or small tweaks
+- Research / code exploration only
+- The task takes fewer than 3 steps
+
+### How to use teams
+
+1. **Create a team** with \`TeamCreate\` and a descriptive name
+2. **Break the task into sub-tasks** using \`TaskCreate\`
+3. **Spawn teammates** from the roles below using the \`Task\` tool with \`team_name\`
+4. **Assign tasks** to teammates and let them work in parallel
+5. **Coordinate** via \`SendMessage\` if teammates need to sync
+6. **Shut down** teammates when the work is done`);
+
+  parts.push('### Available Roles\n');
 
   for (const member of team.members) {
     const memberLines: string[] = [];
