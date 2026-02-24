@@ -11,6 +11,7 @@ import { SectionHeader } from '../section-header';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { OptionCardGroup } from '@/components/ui/option-card';
+import { FieldTooltip } from '@/components/ui/field-tooltip';
 import { SECURITY_PRIORITIES_OPTIONS } from '@/lib/questionnaire/option-data';
 
 export default function StepSecurity({ onNext, onPrev, onSkip, isFirst, isLast, sectionMeta, stepNumber, totalSteps }: StepProps) {
@@ -38,15 +39,23 @@ export default function StepSecurity({ onNext, onPrev, onSkip, isFirst, isLast, 
         name="securityPriorities"
         control={control}
         render={({ field }) => (
-          <OptionCardGroup
-            label={t('step11.priorities')}
-            options={SECURITY_PRIORITIES_OPTIONS}
-            value={field.value ?? ''}
-            onChange={(v) => field.onChange(v)}
-            multiple
-            allowCustom
-            customPlaceholder={t('step11.prioritiesPlaceholder')}
-          />
+          <div>
+            <div className="flex items-center gap-1.5 mb-3">
+              <span className="text-base font-bold text-slate-800 ml-1">{t('step11.priorities')}</span>
+              <FieldTooltip
+                tooltip="The security aspects most critical to your project."
+                examples={["OWASP Top 10 compliance", "Data encryption at rest", "Input sanitization on all endpoints"]}
+              />
+            </div>
+            <OptionCardGroup
+              options={SECURITY_PRIORITIES_OPTIONS}
+              value={field.value ?? ''}
+              onChange={(v) => field.onChange(v)}
+              multiple
+              allowCustom
+              customPlaceholder={t('step11.prioritiesPlaceholder')}
+            />
+          </div>
         )}
       />
 

@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { OptionCardGroup } from '@/components/ui/option-card';
+import { FieldTooltip } from '@/components/ui/field-tooltip';
 import {
   AUTONOMY_LEVEL_OPTIONS,
   DETAIL_LEVEL_OPTIONS,
@@ -48,12 +49,20 @@ export default function StepAgentPrefs({ onNext, onPrev, onSkip, isFirst, isLast
         name="autonomyLevel"
         control={control}
         render={({ field }) => (
-          <OptionCardGroup
-            label={t('step20.autonomyLevel')}
-            options={AUTONOMY_LEVEL_OPTIONS}
-            value={field.value ?? ''}
-            onChange={(v) => field.onChange(v)}
-          />
+          <div>
+            <div className="flex items-center gap-1.5 mb-3">
+              <span className="text-base font-bold text-slate-800 ml-1">{t('step20.autonomyLevel')}</span>
+              <FieldTooltip
+                tooltip="How independently should the agent work? Low = always asks before acting, High = makes decisions and explains after."
+                examples={["Low: always propose a plan first", "Medium: act on small changes, ask for big ones", "High: just do it and explain what you did"]}
+              />
+            </div>
+            <OptionCardGroup
+              options={AUTONOMY_LEVEL_OPTIONS}
+              value={field.value ?? ''}
+              onChange={(v) => field.onChange(v)}
+            />
+          </div>
         )}
       />
 
@@ -79,12 +88,20 @@ export default function StepAgentPrefs({ onNext, onPrev, onSkip, isFirst, isLast
         name="changePreference"
         control={control}
         render={({ field }) => (
-          <OptionCardGroup
-            label={t('step20.changePreference')}
-            options={CHANGE_PREFERENCE_OPTIONS}
-            value={field.value ?? ''}
-            onChange={(v) => field.onChange(v)}
-          />
+          <div>
+            <div className="flex items-center gap-1.5 mb-3">
+              <span className="text-base font-bold text-slate-800 ml-1">{t('step20.changePreference')}</span>
+              <FieldTooltip
+                tooltip="Should the agent make minimal surgical changes, or refactor surrounding code when it sees improvements?"
+                examples={["Minimal: only change what's asked", "Balanced: fix nearby issues if obvious", "Deep: refactor when it improves the codebase"]}
+              />
+            </div>
+            <OptionCardGroup
+              options={CHANGE_PREFERENCE_OPTIONS}
+              value={field.value ?? ''}
+              onChange={(v) => field.onChange(v)}
+            />
+          </div>
         )}
       />
 

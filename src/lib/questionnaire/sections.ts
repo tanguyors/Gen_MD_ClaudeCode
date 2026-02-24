@@ -137,7 +137,7 @@ export const SECTIONS: SectionMeta[] = [
     isRequired: false,
     isApplicable: () => true,
     category: 'process',
-    minVerbosity: 'standard',
+    minVerbosity: 'minimal',
   },
   {
     key: 'database',
@@ -147,7 +147,11 @@ export const SECTIONS: SectionMeta[] = [
     title_fr: 'Base de données & données',
     description_fr: 'Schéma, migrations, intégrité, PII',
     isRequired: false,
-    isApplicable: () => true,
+    isApplicable: (data: Partial<Questionnaire>) => {
+      const type = data.identity?.projectType;
+      if (!type) return true;
+      return ['web', 'api', 'saas', 'data', 'ai', 'mobile'].includes(type);
+    },
     category: 'technical',
     minVerbosity: 'detailed',
   },
@@ -159,7 +163,11 @@ export const SECTIONS: SectionMeta[] = [
     title_fr: 'API & contrats',
     description_fr: 'Versioning, erreurs, auth, rate limiting',
     isRequired: false,
-    isApplicable: () => true,
+    isApplicable: (data: Partial<Questionnaire>) => {
+      const type = data.identity?.projectType;
+      if (!type) return true;
+      return ['api', 'saas', 'web'].includes(type);
+    },
     category: 'technical',
     minVerbosity: 'detailed',
   },
@@ -171,7 +179,11 @@ export const SECTIONS: SectionMeta[] = [
     title_fr: 'Sécurité & conformité',
     description_fr: 'Priorités sécurité, conformité, secrets',
     isRequired: false,
-    isApplicable: () => true,
+    isApplicable: (data: Partial<Questionnaire>) => {
+      const stage = data.identity?.currentStage;
+      if (!stage) return true;
+      return stage !== 'poc';
+    },
     category: 'process',
     minVerbosity: 'detailed',
   },
@@ -183,7 +195,13 @@ export const SECTIONS: SectionMeta[] = [
     title_fr: 'Performance & fiabilité',
     description_fr: 'SLO, objectifs, cache, stratégies de retry',
     isRequired: false,
-    isApplicable: () => true,
+    isApplicable: (data: Partial<Questionnaire>) => {
+      const stage = data.identity?.currentStage;
+      const type = data.identity?.projectType;
+      if (type === 'saas') return true;
+      if (!stage) return true;
+      return stage === 'production' || stage === 'scale';
+    },
     category: 'technical',
     minVerbosity: 'detailed',
   },
@@ -197,7 +215,7 @@ export const SECTIONS: SectionMeta[] = [
     isRequired: false,
     isApplicable: () => true,
     category: 'process',
-    minVerbosity: 'detailed',
+    minVerbosity: 'standard',
   },
   {
     key: 'cicd',
@@ -207,7 +225,11 @@ export const SECTIONS: SectionMeta[] = [
     title_fr: 'CI/CD & release',
     description_fr: 'Pipeline, branches, release, rollback',
     isRequired: false,
-    isApplicable: () => true,
+    isApplicable: (data: Partial<Questionnaire>) => {
+      const stage = data.identity?.currentStage;
+      if (!stage) return true;
+      return stage !== 'poc';
+    },
     category: 'process',
     minVerbosity: 'detailed',
   },
@@ -219,7 +241,11 @@ export const SECTIONS: SectionMeta[] = [
     title_fr: 'Observabilité & incidents',
     description_fr: 'Logs, métriques, alertes, processus d\'incident',
     isRequired: false,
-    isApplicable: () => true,
+    isApplicable: (data: Partial<Questionnaire>) => {
+      const stage = data.identity?.currentStage;
+      if (!stage) return true;
+      return stage === 'production' || stage === 'scale';
+    },
     category: 'process',
     minVerbosity: 'detailed',
   },
@@ -311,7 +337,7 @@ export const SECTIONS: SectionMeta[] = [
     isRequired: false,
     isApplicable: () => true,
     category: 'process',
-    minVerbosity: 'detailed',
+    minVerbosity: 'standard',
   },
   {
     key: 'examples',
@@ -345,7 +371,11 @@ export const SECTIONS: SectionMeta[] = [
     title_fr: 'Gouvernance',
     description_fr: 'Validateurs, communication, SLA de review',
     isRequired: false,
-    isApplicable: () => true,
+    isApplicable: (data: Partial<Questionnaire>) => {
+      const stage = data.identity?.currentStage;
+      if (!stage) return true;
+      return stage === 'production' || stage === 'scale';
+    },
     category: 'process',
     minVerbosity: 'detailed',
   },

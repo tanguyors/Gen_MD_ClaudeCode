@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
+import { FieldTooltip } from '@/components/ui/field-tooltip';
 
 export default function StepAlwaysOnRules({ onNext, onPrev, onSkip, isFirst, isLast, sectionMeta, stepNumber, totalSteps }: StepProps) {
   const { t } = useT();
@@ -44,7 +45,13 @@ export default function StepAlwaysOnRules({ onNext, onPrev, onSkip, isFirst, isL
       <SectionHeader sectionMeta={sectionMeta} stepNumber={stepNumber} totalSteps={totalSteps} />
 
       <div className="space-y-3">
-        <label className="block text-sm font-medium text-gray-700">Universal Rules</label>
+        <div className="flex items-center gap-1.5">
+          <label className="block text-sm font-medium text-gray-700">Universal Rules</label>
+          <FieldTooltip
+            tooltip="Rules the agent must ALWAYS follow, regardless of task. Keep them universal — task-specific rules belong in agent_docs/."
+            examples={["Never push directly to main", "Always run typecheck before committing", "Never store secrets in code", "All API changes need @backend approval"]}
+          />
+        </div>
         {fields.map((field, index) => (
           <div key={field.id} className="flex items-start gap-2">
             <Input

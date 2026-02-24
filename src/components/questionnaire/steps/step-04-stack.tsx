@@ -1,6 +1,7 @@
 'use client';
 
-import { useForm, Controller } from 'react-hook-form';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { useForm, useWatch, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { StackSchema } from '@/lib/questionnaire/schemas';
 import { useAppStore } from '@/lib/storage/store';
@@ -21,6 +22,7 @@ import {
   HOSTING_OPTIONS,
   AUTH_TOOLS_OPTIONS,
 } from '@/lib/questionnaire/option-data';
+import { getSuggestions } from '@/lib/questionnaire/tech-dependencies';
 import { z } from 'zod';
 
 const FormSchema = StackSchema.extend({
@@ -34,7 +36,7 @@ export default function StepStack({ onNext, onPrev, onSkip, isFirst, isLast, sec
   const { questionnaire, updateSection } = useAppStore();
   const existing = questionnaire.stack;
 
-  const { register, handleSubmit, control } = useForm<FormData>({
+  const { register, handleSubmit, control, setValue, getValues } = useForm<FormData>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
       languagesStr: existing?.languages?.join(', ') ?? '',
@@ -52,6 +54,79 @@ export default function StepStack({ onNext, onPrev, onSkip, isFirst, isLast, sec
       forbiddenDeps: existing?.forbiddenDeps ?? '',
     },
   });
+
+  const watchedFrontend = useWatch({ control, name: 'frontendFramework' });
+  const watchedBackend = useWatch({ control, name: 'backendFramework' });
+  const watchedDatabase = useWatch({ control, name: 'database' });
+
+  const [autoFillNotice, setAutoFillNotice] = useState(false);
+  const noticeTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
+
+  const showAutoFillNotice = useCallback(() => {
+    setAutoFillNotice(true);
+    if (noticeTimer.current) clearTimeout(noticeTimer.current);
+    noticeTimer.current = setTimeout(() => setAutoFillNotice(false), 3000);
+  }, []);
+
+  const prevFrontend = useRef(watchedFrontend);
+  const prevBackend = useRef(watchedBackend);
+  const prevDatabase = useRef(watchedDatabase);
+
+  useEffect(() => {
+    let changedField: string | null = null;
+    let changedValue = '';
+
+    if (watchedFrontend !== prevFrontend.current) {
+      changedField = 'frontendFramework';
+      changedValue = watchedFrontend ?? '';
+      prevFrontend.current = watchedFrontend;
+    } else if (watchedBackend !== prevBackend.current) {
+      changedField = 'backendFramework';
+      changedValue = watchedBackend ?? '';
+      prevBackend.current = watchedBackend;
+    } else if (watchedDatabase !== prevDatabase.current) {
+      changedField = 'database';
+      changedValue = watchedDatabase ?? '';
+      prevDatabase.current = watchedDatabase;
+    }
+
+    if (!changedField || !changedValue) return;
+
+    const current = getValues();
+    // Note: 'languages' is intentionally omitted so getSuggestions always
+    // returns language suggestions. Deduplication is handled below when
+    // appending to the languagesStr field.
+    const currentMap: Record<string, string> = {
+      backendFramework: current.backendFramework ?? '',
+      frontendFramework: current.frontendFramework ?? '',
+      packageManager: current.packageManager ?? '',
+      hosting: current.hosting ?? '',
+      orm: current.orm ?? '',
+      authTools: current.authTools ?? '',
+      database: current.database ?? '',
+    };
+
+    const suggestions = getSuggestions(changedField, changedValue, currentMap);
+    let didFill = false;
+
+    for (const [key, value] of Object.entries(suggestions)) {
+      if (key === 'languages') {
+        // Append to languagesStr instead of replacing
+        const existingLangs = current.languagesStr ?? '';
+        const langs = existingLangs ? existingLangs.split(',').map((s) => s.trim()).filter(Boolean) : [];
+        if (!langs.includes(value)) {
+          const updated = langs.length > 0 ? `${existingLangs}, ${value}` : value;
+          setValue('languagesStr', updated, { shouldDirty: true });
+          didFill = true;
+        }
+      } else {
+        setValue(key as keyof FormData, value, { shouldDirty: true });
+        didFill = true;
+      }
+    }
+
+    if (didFill) showAutoFillNotice();
+  }, [watchedFrontend, watchedBackend, watchedDatabase, getValues, setValue, showAutoFillNotice]);
 
   const handleLetClaudeDecide = () => {
     updateSection('stack', { _claudeDecide: true } as never);
@@ -72,6 +147,13 @@ export default function StepStack({ onNext, onPrev, onSkip, isFirst, isLast, sec
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <SectionHeader sectionMeta={sectionMeta} stepNumber={stepNumber} totalSteps={totalSteps} />
+
+      {autoFillNotice && (
+        <div className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm font-medium animate-in fade-in slide-in-from-top-1 duration-300">
+          <Sparkles size={14} className="shrink-0" />
+          Auto-filled based on your selection
+        </div>
+      )}
 
       <button
         type="button"

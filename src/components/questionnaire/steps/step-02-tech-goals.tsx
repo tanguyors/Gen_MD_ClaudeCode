@@ -10,6 +10,7 @@ import { SectionHeader } from '../section-header';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { OptionCardGroup } from '@/components/ui/option-card';
+import { FieldTooltip } from '@/components/ui/field-tooltip';
 import { PRIORITY_QUALITIES_OPTIONS, RISK_TOLERANCE_OPTIONS } from '@/lib/questionnaire/option-data';
 import { getPrimaryGoalOptions } from '@/lib/questionnaire/contextual-options';
 import { z } from 'zod';
@@ -56,14 +57,22 @@ export default function StepTechGoals({ onNext, onPrev, onSkip, isFirst, isLast,
         name="primaryGoal"
         control={control}
         render={({ field }) => (
-          <OptionCardGroup
-            label={t('step02.primaryGoal')}
-            options={getPrimaryGoalOptions(projectType)}
-            value={field.value ?? ''}
-            onChange={(v) => field.onChange(v)}
-            allowCustom
-            customPlaceholder={t('step02.primaryGoalPlaceholder')}
-          />
+          <div>
+            <div className="flex items-center gap-1.5 mb-3">
+              <span className="text-base font-bold text-slate-800 ml-1">{t('step02.primaryGoal')}</span>
+              <FieldTooltip
+                tooltip="The single most important technical quality you want to optimize for. This drives architectural decisions."
+                examples={["Reliability for a banking app", "Speed to market for a startup MVP", "Developer experience for a growing team"]}
+              />
+            </div>
+            <OptionCardGroup
+              options={getPrimaryGoalOptions(projectType)}
+              value={field.value ?? ''}
+              onChange={(v) => field.onChange(v)}
+              allowCustom
+              customPlaceholder={t('step02.primaryGoalPlaceholder')}
+            />
+          </div>
         )}
       />
 
@@ -83,19 +92,35 @@ export default function StepTechGoals({ onNext, onPrev, onSkip, isFirst, isLast,
         )}
       />
 
-      <Textarea label={t('step02.existingTechDebt')} {...register('existingTechDebt')} />
+      <div>
+        <div className="flex items-center gap-1.5 mb-1.5">
+          <label className="text-sm font-medium text-slate-700">{t('step02.existingTechDebt')}</label>
+          <FieldTooltip
+            tooltip="Known shortcuts, outdated patterns, or areas that need refactoring. Helps the agent avoid making them worse."
+            examples={["Legacy jQuery widgets in the dashboard", "Untyped API responses", "No test coverage on auth module"]}
+          />
+        </div>
+        <Textarea {...register('existingTechDebt')} />
+      </div>
       <Textarea label={t('step02.criticalComponents')} {...register('criticalComponents')} />
 
       <Controller
         name="riskTolerance"
         control={control}
         render={({ field }) => (
-          <OptionCardGroup
-            label={t('step02.riskTolerance')}
-            options={RISK_TOLERANCE_OPTIONS}
-            value={field.value ?? 'medium'}
-            onChange={(v) => field.onChange(v)}
-          />
+          <div>
+            <div className="flex items-center gap-1.5 mb-3">
+              <span className="text-base font-bold text-slate-800 ml-1">{t('step02.riskTolerance')}</span>
+              <FieldTooltip
+                tooltip="How much risk is acceptable when the agent makes changes? Low = safer but slower, High = faster but more potential issues."
+              />
+            </div>
+            <OptionCardGroup
+              options={RISK_TOLERANCE_OPTIONS}
+              value={field.value ?? 'medium'}
+              onChange={(v) => field.onChange(v)}
+            />
+          </div>
         )}
       />
 
