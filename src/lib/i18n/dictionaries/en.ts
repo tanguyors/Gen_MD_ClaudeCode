@@ -164,6 +164,17 @@ export const en = {
   'stepRef.designNotesPlaceholder': 'Describe what you like in terms of code style, design, architecture, UI...',
   'stepRef.mcpLabel': 'MCP Integrations',
   'stepRef.mcpDesc': 'Enable MCP tools to inject their workflow instructions into your generated CLAUDE.md.',
+  'stepRef.mcpSearch': 'Search MCPs...',
+  'stepRef.mcpAll': 'All',
+  'stepRef.mcpSelected': 'selected',
+  'stepRef.mcpCat.ai-debate': 'AI & Debate',
+  'stepRef.mcpCat.code-review': 'Code Review',
+  'stepRef.mcpCat.database': 'Database',
+  'stepRef.mcpCat.design': 'Design',
+  'stepRef.mcpCat.devops': 'DevOps',
+  'stepRef.mcpCat.productivity': 'Productivity',
+  'stepRef.mcpCat.search': 'Search',
+  'stepRef.mcpCat.security': 'Security',
 
   // ─── Step 01: Business Context ──────────────────────────────
   'step01.problemSolved': 'What problem does this project solve?',

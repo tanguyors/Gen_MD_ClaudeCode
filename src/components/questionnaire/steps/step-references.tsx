@@ -9,7 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useT, useLocale } from '@/lib/i18n';
 import { cn } from '@/lib/utils/cn';
 import { MCP_OPTIONS } from '@/lib/generation/mcp-blocks';
-import { Plus, Trash2, ExternalLink, Puzzle } from 'lucide-react';
+import { Plus, Trash2, ExternalLink, Puzzle, Search } from 'lucide-react';
 
 interface RefEntry {
   url: string;
@@ -34,6 +34,18 @@ export default function StepReferences({ onNext, onPrev, onSkip, isFirst, isLast
 
   const [designNotes, setDesignNotes] = useState(existing?.designNotes ?? '');
   const [mcpSelections, setMcpSelections] = useState<string[]>(existing?.mcpIntegrations ?? []);
+  const [mcpSearch, setMcpSearch] = useState('');
+  const [mcpCategory, setMcpCategory] = useState<string>('all');
+
+  const CATEGORIES = ['all', 'ai-debate', 'code-review', 'database', 'design', 'devops', 'productivity', 'search', 'security'] as const;
+
+  const filteredMcps = MCP_OPTIONS.filter((opt) => {
+    const matchesCategory = mcpCategory === 'all' || opt.category === mcpCategory;
+    const matchesSearch = mcpSearch.trim() === '' ||
+      opt.label.toLowerCase().includes(mcpSearch.toLowerCase()) ||
+      opt.description.toLowerCase().includes(mcpSearch.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
 
   const addEntry = () => {
     setEntries([...entries, { url: '', description: '' }]);
@@ -138,18 +150,61 @@ export default function StepReferences({ onNext, onPrev, onSkip, isFirst, isLast
       />
 
       {MCP_OPTIONS.length > 0 && (
-        <div className="space-y-3">
-          <h3 className="text-base font-bold text-slate-800 ml-1 flex items-center gap-2">
-            <Puzzle size={16} className="text-[#FF8A71]" />
-            {t('stepRef.mcpLabel')}
-          </h3>
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-base font-bold text-slate-800 ml-1 flex items-center gap-2">
+              <Puzzle size={16} className="text-[#FF8A71]" />
+              {t('stepRef.mcpLabel')}
+            </h3>
+            {mcpSelections.length > 0 && (
+              <span className="text-xs font-bold text-[#FF8A71] bg-[#FFF0ED] px-3 py-1 rounded-full">
+                {mcpSelections.length} {t('stepRef.mcpSelected')}
+              </span>
+            )}
+          </div>
           <p className="text-sm text-slate-500 ml-1">{t('stepRef.mcpDesc')}</p>
-          <div className="space-y-2">
-            {MCP_OPTIONS.map((opt) => (
+
+          {/* Search */}
+          <div className="relative">
+            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+            <input
+              type="text"
+              value={mcpSearch}
+              onChange={(e) => setMcpSearch(e.target.value)}
+              placeholder={t('stepRef.mcpSearch')}
+              className={cn(
+                'w-full pl-10 pr-4 py-2.5 rounded-xl border-2 border-slate-100 bg-white text-sm transition-all',
+                'placeholder:text-slate-400 focus:outline-none focus:border-[#FF8A71] focus:ring-4 focus:ring-[#FF8A71]/10',
+              )}
+            />
+          </div>
+
+          {/* Category tabs */}
+          <div className="flex flex-wrap gap-2">
+            {CATEGORIES.map((cat) => (
+              <button
+                key={cat}
+                type="button"
+                onClick={() => setMcpCategory(cat)}
+                className={cn(
+                  'px-3 py-1.5 text-xs font-bold rounded-full border-2 transition-all',
+                  mcpCategory === cat
+                    ? 'border-[#FF8A71] bg-[#FFF0ED] text-[#FF8A71]'
+                    : 'border-slate-100 bg-white/70 text-slate-500 hover:border-slate-200',
+                )}
+              >
+                {cat === 'all' ? t('stepRef.mcpAll') : t(`stepRef.mcpCat.${cat}` as Parameters<typeof t>[0])}
+              </button>
+            ))}
+          </div>
+
+          {/* MCP list */}
+          <div className="space-y-2 max-h-[400px] overflow-y-auto pr-1">
+            {filteredMcps.map((opt) => (
               <label
                 key={opt.id}
                 className={cn(
-                  'flex items-start gap-3 p-4 rounded-2xl border-2 cursor-pointer transition-all',
+                  'flex items-start gap-3 p-3 rounded-2xl border-2 cursor-pointer transition-all',
                   mcpSelections.includes(opt.id)
                     ? 'border-[#FF8A71] bg-[#FFF0ED]'
                     : 'border-slate-100 bg-white/70 hover:border-slate-200',
@@ -161,16 +216,26 @@ export default function StepReferences({ onNext, onPrev, onSkip, isFirst, isLast
                   onChange={() => toggleMcp(opt.id)}
                   className="mt-0.5 accent-[#FF8A71]"
                 />
-                <div>
-                  <span className="text-sm font-bold text-slate-800">
-                    {locale === 'fr' ? opt.label_fr : opt.label}
-                  </span>
-                  <p className="text-xs text-slate-500 mt-0.5">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-bold text-slate-800">
+                      {locale === 'fr' ? opt.label_fr : opt.label}
+                    </span>
+                    <span className="text-[10px] font-medium text-slate-400 bg-slate-50 px-2 py-0.5 rounded-full shrink-0">
+                      {opt.category}
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-500 mt-0.5 truncate">
                     {locale === 'fr' ? opt.description_fr : opt.description}
                   </p>
                 </div>
               </label>
             ))}
+            {filteredMcps.length === 0 && (
+              <p className="text-sm text-slate-400 text-center py-6">
+                {locale === 'fr' ? 'Aucun MCP trouvé' : 'No MCPs found'}
+              </p>
+            )}
           </div>
         </div>
       )}

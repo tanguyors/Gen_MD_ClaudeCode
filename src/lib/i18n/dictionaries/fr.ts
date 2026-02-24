@@ -166,6 +166,17 @@ export const fr: Record<DictionaryKey, string> = {
   'stepRef.designNotesPlaceholder': 'Décrivez ce que vous aimez en termes de style de code, design, architecture, UI...',
   'stepRef.mcpLabel': 'Intégrations MCP',
   'stepRef.mcpDesc': 'Activez les outils MCP pour injecter leurs instructions de workflow dans votre CLAUDE.md généré.',
+  'stepRef.mcpSearch': 'Rechercher des MCPs...',
+  'stepRef.mcpAll': 'Tous',
+  'stepRef.mcpSelected': 'sélectionné(s)',
+  'stepRef.mcpCat.ai-debate': 'IA & Débat',
+  'stepRef.mcpCat.code-review': 'Revue de Code',
+  'stepRef.mcpCat.database': 'Base de données',
+  'stepRef.mcpCat.design': 'Design',
+  'stepRef.mcpCat.devops': 'DevOps',
+  'stepRef.mcpCat.productivity': 'Productivité',
+  'stepRef.mcpCat.search': 'Recherche',
+  'stepRef.mcpCat.security': 'Sécurité',
 
   // ─── Step 01: Business Context ──────────────────────────────
   'step01.problemSolved': 'Quel problème ce projet résout-il ?',
