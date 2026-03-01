@@ -170,6 +170,7 @@ export const fr: Record<DictionaryKey, string> = {
   'stepRef.mcpAll': 'Tous',
   'stepRef.mcpSelected': 'sélectionné(s)',
   'stepRef.mcpCat.ai-debate': 'IA & Débat',
+  'stepRef.mcpCat.audio': 'Audio',
   'stepRef.mcpCat.code-review': 'Revue de Code',
   'stepRef.mcpCat.database': 'Base de données',
   'stepRef.mcpCat.design': 'Design',

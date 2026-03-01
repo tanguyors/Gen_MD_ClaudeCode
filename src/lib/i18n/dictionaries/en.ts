@@ -168,6 +168,7 @@ export const en = {
   'stepRef.mcpAll': 'All',
   'stepRef.mcpSelected': 'selected',
   'stepRef.mcpCat.ai-debate': 'AI & Debate',
+  'stepRef.mcpCat.audio': 'Audio',
   'stepRef.mcpCat.code-review': 'Code Review',
   'stepRef.mcpCat.database': 'Database',
   'stepRef.mcpCat.design': 'Design',

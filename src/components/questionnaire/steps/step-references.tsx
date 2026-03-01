@@ -37,7 +37,7 @@ export default function StepReferences({ onNext, onPrev, onSkip, isFirst, isLast
   const [mcpSearch, setMcpSearch] = useState('');
   const [mcpCategory, setMcpCategory] = useState<string>('all');
 
-  const CATEGORIES = ['all', 'ai-debate', 'code-review', 'database', 'design', 'devops', 'productivity', 'search', 'security'] as const;
+  const CATEGORIES = ['all', 'ai-debate', 'audio', 'code-review', 'database', 'design', 'devops', 'productivity', 'search', 'security'] as const;
 
   const filteredMcps = MCP_OPTIONS.filter((opt) => {
     const matchesCategory = mcpCategory === 'all' || opt.category === mcpCategory;
