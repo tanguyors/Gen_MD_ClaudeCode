@@ -179,6 +179,17 @@ export const fr: Record<DictionaryKey, string> = {
   'stepRef.mcpCat.search': 'Recherche',
   'stepRef.mcpCat.security': 'Sécurité',
 
+  // ─── Web Design Style ──────────────────────────────
+  'stepDesign.layoutTitle': 'Style de layout',
+  'stepDesign.layoutDesc': 'Choisissez le pattern structurel. Cela définit comment les utilisateurs naviguent votre contenu.',
+  'stepDesign.visualTitle': 'Style visuel',
+  'stepDesign.visualDesc': 'Choisissez l\'esthétique et le "vibe" des composants.',
+  'stepDesign.heroTitle': 'Section Hero',
+  'stepDesign.heroDesc': 'À quoi doit ressembler le premier écran du site ?',
+  'stepDesign.notesTitle': 'Notes de design',
+  'stepDesign.notesDesc': 'Des inspirations ou préférences spécifiques ?',
+  'stepDesign.notesPlaceholder': 'Je veux que mon site ressemble à Apple.com...',
+
   // ─── Step 01: Business Context ──────────────────────────────
   'step01.problemSolved': 'Quel problème ce projet résout-il ?',
   'step01.targetUsers': 'Qui sont les utilisateurs cibles ?',

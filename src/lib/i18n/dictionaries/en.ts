@@ -177,6 +177,17 @@ export const en = {
   'stepRef.mcpCat.search': 'Search',
   'stepRef.mcpCat.security': 'Security',
 
+  // ─── Web Design Style ──────────────────────────────
+  'stepDesign.layoutTitle': 'Layout Style',
+  'stepDesign.layoutDesc': 'Choose the core structural pattern. This defines how users navigate your content.',
+  'stepDesign.visualTitle': 'Visual Style',
+  'stepDesign.visualDesc': 'Pick the aesthetic overlay and "vibe" of the components.',
+  'stepDesign.heroTitle': 'Hero Section',
+  'stepDesign.heroDesc': 'How should the first fold of the site look?',
+  'stepDesign.notesTitle': 'Design Notes',
+  'stepDesign.notesDesc': 'Any specific inspirations or preferences?',
+  'stepDesign.notesPlaceholder': 'I want my site to feel like Apple.com...',
+
   // ─── Step 01: Business Context ──────────────────────────────
   'step01.problemSolved': 'What problem does this project solve?',
   'step01.targetUsers': 'Who are the target users?',

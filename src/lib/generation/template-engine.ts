@@ -359,6 +359,18 @@ function renderSupplementarySection(data: Partial<Questionnaire>): string {
     if (list) parts.push(renderSection('UX/UI', 3, list));
   }
 
+  if (hasContent(data.webDesignStyle as Record<string, unknown>)) {
+    const d = data.webDesignStyle!;
+    const items: Array<[string, string | undefined]> = [
+      ['Layout style', d.layoutStyle],
+      ['Visual style', d.visualStyle],
+      ['Hero section', d.heroStyle],
+      ['Design notes', d.designNotes],
+    ];
+    const list = renderKeyValueList(items);
+    if (list) parts.push(renderSection('Web Design Style', 3, list));
+  }
+
   if (hasContent(data.i18n as Record<string, unknown>)) {
     const i = data.i18n!;
     const items: Array<[string, string | undefined]> = [

@@ -351,6 +351,14 @@ export const FinalValidationSchema = z.object({
   readableIn5Min: z.boolean().optional(),
 });
 
+// Section: Web Design Style
+export const WebDesignStyleSchema = z.object({
+  layoutStyle: z.string().optional(),
+  visualStyle: z.string().optional(),
+  heroStyle: z.string().optional(),
+  designNotes: z.string().optional(),
+});
+
 // Master Schema
 export const QuestionnaireSchema = z.object({
   identity: ProjectIdentitySchema,
@@ -383,6 +391,7 @@ export const QuestionnaireSchema = z.object({
   governance: GovernanceSchema,
   alwaysOnBlock: AlwaysOnBlockSchema,
   finalValidation: FinalValidationSchema,
+  webDesignStyle: WebDesignStyleSchema,
 });
 
 export type Questionnaire = z.infer<typeof QuestionnaireSchema>;

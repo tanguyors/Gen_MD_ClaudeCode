@@ -32,6 +32,7 @@ import type {
   GovernanceSchema,
   AlwaysOnBlockSchema,
   FinalValidationSchema,
+  WebDesignStyleSchema,
 } from './schemas';
 
 export type ProjectIdentity = z.infer<typeof ProjectIdentitySchema>;
@@ -65,6 +66,7 @@ export type Pitfalls = z.infer<typeof PitfallsSchema>;
 export type Governance = z.infer<typeof GovernanceSchema>;
 export type AlwaysOnBlock = z.infer<typeof AlwaysOnBlockSchema>;
 export type FinalValidation = z.infer<typeof FinalValidationSchema>;
+export type WebDesignStyle = z.infer<typeof WebDesignStyleSchema>;
 export type Questionnaire = z.infer<typeof QuestionnaireSchema>;
 
 export type SectionKey = keyof Questionnaire;

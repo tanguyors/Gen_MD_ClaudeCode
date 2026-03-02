@@ -265,6 +265,21 @@ export const SECTIONS: SectionMeta[] = [
     minVerbosity: 'detailed',
   },
   {
+    key: 'webDesignStyle',
+    index: 16.5,
+    title: 'Web Design Style',
+    description: 'Choose the layout and visual style for your website',
+    title_fr: 'Style de design web',
+    description_fr: 'Choisissez le layout et le style visuel de votre site',
+    isRequired: false,
+    isApplicable: (data: Partial<Questionnaire>) => {
+      const type = data.identity?.projectType;
+      return type === 'web' || type === 'saas' || type === 'mobile';
+    },
+    category: 'technical',
+    minVerbosity: 'minimal',
+  },
+  {
     key: 'i18n',
     index: 17,
     title: 'Internationalization',

@@ -23,6 +23,7 @@ const STEP_COMPONENTS: Record<SectionKey, React.LazyExoticComponent<React.Compon
   cicd: lazy(() => import('./steps/step-14-cicd')),
   observability: lazy(() => import('./steps/step-15-observability')),
   uxUi: lazy(() => import('./steps/step-16-ux-ui')),
+  webDesignStyle: lazy(() => import('./steps/step-web-design-style')),
   i18n: lazy(() => import('./steps/step-17-i18n')),
   aiMl: lazy(() => import('./steps/step-18-ai-ml')),
   documentation: lazy(() => import('./steps/step-19-documentation')),
