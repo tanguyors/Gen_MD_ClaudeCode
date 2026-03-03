@@ -531,6 +531,15 @@ export const fr: Record<DictionaryKey, string> = {
   'export.copied': 'Copié !',
   'export.regenerate': 'Regénérer avec l\'IA',
   'export.filesInBundle': 'fichiers dans le bundle',
+  'export.includesStubs': 'Inclut les stubs .claude/ agents',
+
+  // ─── Stubs (Agents + Skills) ──────────────────────────────
+  'stubs.agents': 'Agents',
+  'stubs.skills': 'Skills',
+  'stubs.tabLabel': '.claude/',
+  'stubs.empty': 'Remplissez plus de sections du questionnaire pour générer des stubs d\'agents.',
+  'stubs.agentCount': 'agents',
+  'stubs.skillCount': 'skills',
 
   // ─── Markdown Editor ────────────────────────────────────────
   'editor.edit': 'Éditer',

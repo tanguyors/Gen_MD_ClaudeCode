@@ -7,7 +7,8 @@ import { MarkdownEditor } from '@/components/preview/markdown-editor';
 import { QualityReportPanel } from '@/components/preview/quality-report';
 import { ExportActions } from '@/components/preview/export-actions';
 import { splitIntoFiles } from '@/lib/generation/splitter';
-import { Sparkles, AlertCircle, RefreshCw, ArrowLeft, FileText, FolderOpen } from 'lucide-react';
+import { generateStubs } from '@/lib/generation/agent-stubs';
+import { Sparkles, AlertCircle, RefreshCw, ArrowLeft, FileText, FolderOpen, Bot } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
 import { useT } from '@/lib/i18n';
 
@@ -18,6 +19,7 @@ export default function PreviewPage() {
   const generationAttempted = useRef(false);
   const [activeTab, setActiveTab] = useState<string>('CLAUDE.md');
   const {
+    questionnaire,
     generatedMarkdown,
     editedMarkdown,
     qualityReport,
@@ -115,25 +117,47 @@ export default function PreviewPage() {
     return splitIntoFiles(displayMarkdown);
   }, [splitMode, displayMarkdown]);
 
+  // Compute agent/skill stubs from questionnaire data
+  const stubsOutput = useMemo(() => {
+    return generateStubs(questionnaire);
+  }, [questionnaire]);
+
+  const allStubs = useMemo(() => {
+    if (!stubsOutput) return [];
+    return [...stubsOutput.agents, ...stubsOutput.skills];
+  }, [stubsOutput]);
+
   // Get content for the active tab
   const activeTabContent = useMemo(() => {
+    // Check if active tab is a stub file
+    const stub = allStubs.find((s) => s.path === activeTab);
+    if (stub) return stub.content;
+
     if (!splitMode || !splitOutput) return displayMarkdown;
     if (activeTab === 'CLAUDE.md') return splitOutput.root;
     const doc = splitOutput.agentDocs.find((d) => `agent_docs/${d.filename}` === activeTab);
     return doc?.content ?? '';
-  }, [splitMode, splitOutput, activeTab, displayMarkdown]);
+  }, [splitMode, splitOutput, activeTab, displayMarkdown, allStubs]);
 
   // Reset active tab when split mode changes or when a tab no longer exists
   useEffect(() => {
+    const stubPaths = allStubs.map((s) => s.path);
     if (!splitMode) {
-      setActiveTab('CLAUDE.md');
+      // In single-file mode, only CLAUDE.md and stubs are valid
+      if (activeTab !== 'CLAUDE.md' && !stubPaths.includes(activeTab)) {
+        setActiveTab('CLAUDE.md');
+      }
     } else if (splitOutput) {
-      const validTabs = ['CLAUDE.md', ...splitOutput.agentDocs.map((d) => `agent_docs/${d.filename}`)];
+      const validTabs = [
+        'CLAUDE.md',
+        ...splitOutput.agentDocs.map((d) => `agent_docs/${d.filename}`),
+        ...stubPaths,
+      ];
       if (!validTabs.includes(activeTab)) {
         setActiveTab('CLAUDE.md');
       }
     }
-  }, [splitMode, splitOutput, activeTab]);
+  }, [splitMode, splitOutput, activeTab, allStubs]);
 
   // Before hydration, show loading
   if (!hydrated) {
@@ -251,8 +275,8 @@ export default function PreviewPage() {
           </div>
         </header>
 
-        {/* File tabs (split mode) */}
-        {splitMode && splitOutput && splitOutput.agentDocs.length > 0 && (
+        {/* File tabs */}
+        {(splitMode && splitOutput && splitOutput.agentDocs.length > 0) || allStubs.length > 0 ? (
           <div className="flex overflow-x-auto gap-2 mb-6 pb-2">
             <button
               onClick={() => setActiveTab('CLAUDE.md')}
@@ -266,7 +290,7 @@ export default function PreviewPage() {
               <FileText size={14} />
               CLAUDE.md
             </button>
-            {splitOutput.agentDocs.map((doc) => {
+            {splitMode && splitOutput && splitOutput.agentDocs.map((doc) => {
               const tabKey = `agent_docs/${doc.filename}`;
               return (
                 <button
@@ -284,17 +308,35 @@ export default function PreviewPage() {
                 </button>
               );
             })}
+            {allStubs.length > 0 && (splitMode && splitOutput && splitOutput.agentDocs.length > 0) && (
+              <div className="w-px bg-slate-200 mx-1 self-stretch" />
+            )}
+            {allStubs.map((stub) => (
+              <button
+                key={stub.path}
+                onClick={() => setActiveTab(stub.path)}
+                className={cn(
+                  'flex items-center gap-2 px-4 py-2 text-sm font-bold whitespace-nowrap rounded-xl transition-all border-2',
+                  activeTab === stub.path
+                    ? 'bg-[#8B5CF6]/10 text-[#8B5CF6] border-[#8B5CF6]/20'
+                    : 'bg-white/50 text-slate-400 border-transparent hover:text-slate-600 hover:bg-white',
+                )}
+              >
+                <Bot size={14} />
+                {stub.label}.md
+              </button>
+            ))}
           </div>
-        )}
+        ) : null}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
           <div className="lg:col-span-2 flex flex-col gap-6 h-full">
             <MarkdownEditor
               value={activeTabContent}
               onChange={
-                !splitMode || activeTab === 'CLAUDE.md'
+                activeTab === 'CLAUDE.md' && !splitMode
                   ? setEditedMarkdown
-                  : () => {} // agent_docs are read-only in split mode
+                  : () => {} // agent_docs and stubs are read-only
               }
             />
           </div>
@@ -304,6 +346,7 @@ export default function PreviewPage() {
               markdown={activeTabContent}
               splitOutput={splitOutput}
               splitMode={splitMode}
+              stubsOutput={stubsOutput}
               onRegenerate={handleGenerate}
               isGenerating={isGenerating}
             />

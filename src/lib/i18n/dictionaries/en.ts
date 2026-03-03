@@ -529,6 +529,15 @@ export const en = {
   'export.copied': 'Copied!',
   'export.regenerate': 'Regenerate with AI',
   'export.filesInBundle': 'files in bundle',
+  'export.includesStubs': 'Includes .claude/ agent stubs',
+
+  // ─── Stubs (Agents + Skills) ──────────────────────────────
+  'stubs.agents': 'Agents',
+  'stubs.skills': 'Skills',
+  'stubs.tabLabel': '.claude/',
+  'stubs.empty': 'Fill more questionnaire sections to generate agent stubs.',
+  'stubs.agentCount': 'agents',
+  'stubs.skillCount': 'skills',
 
   // ─── Markdown Editor ────────────────────────────────────────
   'editor.edit': 'Edit',

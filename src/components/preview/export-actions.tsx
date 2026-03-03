@@ -2,19 +2,21 @@
 
 import { useState } from 'react';
 import { cn } from '@/lib/utils/cn';
-import { Download, Copy, Check, RefreshCw, Package } from 'lucide-react';
+import { Download, Copy, Check, RefreshCw, Package, Bot } from 'lucide-react';
 import { useT } from '@/lib/i18n';
 import type { SplitOutput } from '@/lib/generation/splitter';
+import type { StubsOutput } from '@/lib/generation/agent-stubs';
 
 interface ExportActionsProps {
   markdown: string;
   splitOutput: SplitOutput | null;
   splitMode: boolean;
+  stubsOutput: StubsOutput | null;
   onRegenerate?: () => void;
   isGenerating?: boolean;
 }
 
-export function ExportActions({ markdown, splitOutput, splitMode, onRegenerate, isGenerating }: ExportActionsProps) {
+export function ExportActions({ markdown, splitOutput, splitMode, stubsOutput, onRegenerate, isGenerating }: ExportActionsProps) {
   const [copied, setCopied] = useState(false);
   const { t } = useT();
 
@@ -29,15 +31,24 @@ export function ExportActions({ markdown, splitOutput, splitMode, onRegenerate, 
   };
 
   const handleDownloadZip = async () => {
-    if (!splitOutput) return;
     const JSZip = (await import('jszip')).default;
     const zip = new JSZip();
 
-    zip.file('CLAUDE.md', splitOutput.root);
+    if (splitOutput) {
+      zip.file('CLAUDE.md', splitOutput.root);
+      const agentDocsFolder = zip.folder('agent_docs');
+      for (const doc of splitOutput.agentDocs) {
+        agentDocsFolder!.file(doc.filename, doc.content);
+      }
+    } else {
+      zip.file('CLAUDE.md', markdown);
+    }
 
-    const agentDocsFolder = zip.folder('agent_docs');
-    for (const doc of splitOutput.agentDocs) {
-      agentDocsFolder!.file(doc.filename, doc.content);
+    // Add .claude/agents/ and .claude/skills/ stubs
+    if (stubsOutput) {
+      for (const stub of [...stubsOutput.agents, ...stubsOutput.skills]) {
+        zip.file(stub.path, stub.content);
+      }
     }
 
     const blob = await zip.generateAsync({ type: 'blob' });
@@ -66,16 +77,26 @@ export function ExportActions({ markdown, splitOutput, splitMode, onRegenerate, 
     }
   };
 
-  const showZip = splitMode && splitOutput && splitOutput.agentDocs.length > 0;
+  const hasStubs = stubsOutput && (stubsOutput.agents.length > 0 || stubsOutput.skills.length > 0);
+  const hasSplit = splitMode && splitOutput && splitOutput.agentDocs.length > 0;
+  const showZip = hasSplit || hasStubs;
 
   return (
     <div className="bg-white/70 backdrop-blur-sm border-2 border-white rounded-[2.5rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-8">
       <h3 className="text-lg font-black text-slate-900 mb-6">{t('export.title')}</h3>
 
       {showZip && (
-        <div className="text-xs font-bold text-slate-400 text-center mb-4">
-          <Package size={14} className="inline mr-1 -mt-0.5" />
-          {splitOutput.agentDocs.length + 1} {t('export.filesInBundle')}
+        <div className="space-y-1 text-center mb-4">
+          <div className="text-xs font-bold text-slate-400">
+            <Package size={14} className="inline mr-1 -mt-0.5" />
+            {(hasSplit ? splitOutput!.agentDocs.length + 1 : 1) + (hasStubs ? stubsOutput!.agents.length + stubsOutput!.skills.length : 0)} {t('export.filesInBundle')}
+          </div>
+          {hasStubs && (
+            <div className="text-[10px] font-bold text-[#8B5CF6]">
+              <Bot size={12} className="inline mr-1 -mt-0.5" />
+              {stubsOutput!.agents.length} {t('stubs.agentCount')} + {stubsOutput!.skills.length} {t('stubs.skillCount')}
+            </div>
+          )}
         </div>
       )}
 
