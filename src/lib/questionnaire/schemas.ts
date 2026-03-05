@@ -3,7 +3,7 @@ import { z } from 'zod';
 // Section 0: Project Identity (required fields)
 export const ProjectIdentitySchema = z.object({
   projectName: z.string().min(1, 'Project name is required'),
-  projectType: z.enum(['website', 'web', 'mobile', 'api', 'saas', 'infra', 'data', 'ai', 'desktop', 'other']),
+  projectType: z.enum(['website', 'web', 'mobile', 'api', 'saas', 'crm', 'infra', 'data', 'ai', 'desktop', 'other']),
   currentStage: z.enum(['poc', 'mvp', 'production', 'scale']),
   owner: z.string().optional(),
   devEnvironment: z.enum(['windows', 'macos', 'linux']).optional(),

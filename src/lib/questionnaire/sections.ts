@@ -150,7 +150,7 @@ export const SECTIONS: SectionMeta[] = [
     isApplicable: (data: Partial<Questionnaire>) => {
       const type = data.identity?.projectType;
       if (!type) return true;
-      return ['website', 'web', 'api', 'saas', 'data', 'ai', 'mobile'].includes(type);
+      return ['website', 'web', 'api', 'saas', 'crm', 'data', 'ai', 'mobile'].includes(type);
     },
     category: 'technical',
     minVerbosity: 'detailed',
@@ -166,7 +166,7 @@ export const SECTIONS: SectionMeta[] = [
     isApplicable: (data: Partial<Questionnaire>) => {
       const type = data.identity?.projectType;
       if (!type) return true;
-      return ['api', 'saas', 'website', 'web'].includes(type);
+      return ['api', 'saas', 'crm', 'website', 'web'].includes(type);
     },
     category: 'technical',
     minVerbosity: 'detailed',
@@ -198,7 +198,7 @@ export const SECTIONS: SectionMeta[] = [
     isApplicable: (data: Partial<Questionnaire>) => {
       const stage = data.identity?.currentStage;
       const type = data.identity?.projectType;
-      if (type === 'saas') return true;
+      if (type === 'saas' || type === 'crm') return true;
       if (!stage) return true;
       return stage === 'production' || stage === 'scale';
     },
@@ -259,7 +259,7 @@ export const SECTIONS: SectionMeta[] = [
     isRequired: false,
     isApplicable: (data: Partial<Questionnaire>) => {
       const type = data.identity?.projectType;
-      return type === 'website' || type === 'web' || type === 'mobile' || type === 'saas' || type === 'desktop';
+      return type === 'website' || type === 'web' || type === 'mobile' || type === 'saas' || type === 'crm' || type === 'desktop';
     },
     category: 'technical',
     minVerbosity: 'detailed',
@@ -274,7 +274,7 @@ export const SECTIONS: SectionMeta[] = [
     isRequired: false,
     isApplicable: (data: Partial<Questionnaire>) => {
       const type = data.identity?.projectType;
-      return type === 'website' || type === 'web' || type === 'saas' || type === 'mobile';
+      return type === 'website' || type === 'web' || type === 'saas' || type === 'crm' || type === 'mobile';
     },
     category: 'technical',
     minVerbosity: 'minimal',
@@ -289,7 +289,7 @@ export const SECTIONS: SectionMeta[] = [
     isRequired: false,
     isApplicable: (data: Partial<Questionnaire>) => {
       const type = data.identity?.projectType;
-      return type === 'website' || type === 'web' || type === 'mobile' || type === 'saas';
+      return type === 'website' || type === 'web' || type === 'mobile' || type === 'saas' || type === 'crm';
     },
     category: 'technical',
     minVerbosity: 'detailed',
