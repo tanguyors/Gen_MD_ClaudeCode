@@ -8,6 +8,7 @@ import { QualityReportPanel } from '@/components/preview/quality-report';
 import { ExportActions } from '@/components/preview/export-actions';
 import { splitIntoFiles } from '@/lib/generation/splitter';
 import { generateStubs } from '@/lib/generation/agent-stubs';
+import { generateHookScripts } from '@/lib/generation/hook-scripts';
 import { Sparkles, AlertCircle, RefreshCw, ArrowLeft, FileText, FolderOpen, Bot } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
 import { useT } from '@/lib/i18n';
@@ -120,6 +121,11 @@ export default function PreviewPage() {
   // Compute agent/skill stubs from questionnaire data
   const stubsOutput = useMemo(() => {
     return generateStubs(questionnaire);
+  }, [questionnaire]);
+
+  // Compute hook scripts for persistent memory
+  const hooksOutput = useMemo(() => {
+    return generateHookScripts(questionnaire);
   }, [questionnaire]);
 
   const allStubs = useMemo(() => {
@@ -347,6 +353,7 @@ export default function PreviewPage() {
               splitOutput={splitOutput}
               splitMode={splitMode}
               stubsOutput={stubsOutput}
+              hooksOutput={hooksOutput}
               onRegenerate={handleGenerate}
               isGenerating={isGenerating}
             />

@@ -2,21 +2,23 @@
 
 import { useState } from 'react';
 import { cn } from '@/lib/utils/cn';
-import { Download, Copy, Check, RefreshCw, Package, Bot } from 'lucide-react';
+import { Download, Copy, Check, RefreshCw, Package, Bot, Brain } from 'lucide-react';
 import { useT } from '@/lib/i18n';
 import type { SplitOutput } from '@/lib/generation/splitter';
 import type { StubsOutput } from '@/lib/generation/agent-stubs';
+import type { HooksOutput } from '@/lib/generation/hook-scripts';
 
 interface ExportActionsProps {
   markdown: string;
   splitOutput: SplitOutput | null;
   splitMode: boolean;
   stubsOutput: StubsOutput | null;
+  hooksOutput: HooksOutput | null;
   onRegenerate?: () => void;
   isGenerating?: boolean;
 }
 
-export function ExportActions({ markdown, splitOutput, splitMode, stubsOutput, onRegenerate, isGenerating }: ExportActionsProps) {
+export function ExportActions({ markdown, splitOutput, splitMode, stubsOutput, hooksOutput, onRegenerate, isGenerating }: ExportActionsProps) {
   const [copied, setCopied] = useState(false);
   const { t } = useT();
 
@@ -51,6 +53,13 @@ export function ExportActions({ markdown, splitOutput, splitMode, stubsOutput, o
       }
     }
 
+    // Add .claude/hooks/ scripts for persistent memory
+    if (hooksOutput?.enabled) {
+      for (const hookFile of hooksOutput.files) {
+        zip.file(hookFile.path, hookFile.content);
+      }
+    }
+
     const blob = await zip.generateAsync({ type: 'blob' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -78,8 +87,9 @@ export function ExportActions({ markdown, splitOutput, splitMode, stubsOutput, o
   };
 
   const hasStubs = stubsOutput && (stubsOutput.agents.length > 0 || stubsOutput.skills.length > 0);
+  const hasHooks = hooksOutput?.enabled && hooksOutput.files.length > 0;
   const hasSplit = splitMode && splitOutput && splitOutput.agentDocs.length > 0;
-  const showZip = hasSplit || hasStubs;
+  const showZip = hasSplit || hasStubs || hasHooks;
 
   return (
     <div className="bg-white/70 backdrop-blur-sm border-2 border-white rounded-[2.5rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-8">
@@ -89,12 +99,18 @@ export function ExportActions({ markdown, splitOutput, splitMode, stubsOutput, o
         <div className="space-y-1 text-center mb-4">
           <div className="text-xs font-bold text-slate-400">
             <Package size={14} className="inline mr-1 -mt-0.5" />
-            {(hasSplit ? splitOutput!.agentDocs.length + 1 : 1) + (hasStubs ? stubsOutput!.agents.length + stubsOutput!.skills.length : 0)} {t('export.filesInBundle')}
+            {(hasSplit ? splitOutput!.agentDocs.length + 1 : 1) + (hasStubs ? stubsOutput!.agents.length + stubsOutput!.skills.length : 0) + (hasHooks ? hooksOutput!.files.length : 0)} {t('export.filesInBundle')}
           </div>
           {hasStubs && (
             <div className="text-[10px] font-bold text-[#8B5CF6]">
               <Bot size={12} className="inline mr-1 -mt-0.5" />
               {stubsOutput!.agents.length} {t('stubs.agentCount')} + {stubsOutput!.skills.length} {t('stubs.skillCount')}
+            </div>
+          )}
+          {hasHooks && (
+            <div className="text-[10px] font-bold text-[#10B981]">
+              <Brain size={12} className="inline mr-1 -mt-0.5" />
+              Persistent Memory Hooks
             </div>
           )}
         </div>

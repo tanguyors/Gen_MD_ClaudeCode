@@ -445,6 +445,7 @@ export const fr: Record<DictionaryKey, string> = {
   'step20.speedPlaceholder': 'Précisez votre préférence...',
   'step20.prototypeVsProduction': 'Prototype vs production-ready',
   'step20.prototypePlaceholder': 'Précisez votre préférence...',
+  'step20.memoryProvider': 'Mémoire persistante (anti-compaction)',
 
   // ─── Step 21: Code Policy ───────────────────────────────────
   'step21.canCreateFiles': 'L\'agent peut-il créer des fichiers/dossiers ?',

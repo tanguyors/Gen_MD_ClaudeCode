@@ -443,6 +443,7 @@ export const en = {
   'step20.speedPlaceholder': 'Specify your preference...',
   'step20.prototypeVsProduction': 'Prototype vs production-ready',
   'step20.prototypePlaceholder': 'Specify your preference...',
+  'step20.memoryProvider': 'Persistent memory (anti-compaction)',
 
   // ─── Step 21: Code Policy ───────────────────────────────────
   'step21.canCreateFiles': 'Can the agent create files/folders?',

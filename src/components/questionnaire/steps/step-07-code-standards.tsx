@@ -5,12 +5,15 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { CodeStandardsSchema } from '@/lib/questionnaire/schemas';
 import { useAppStore } from '@/lib/storage/store';
 import { useT } from '@/lib/i18n';
+import { useLocale } from '@/lib/i18n/context';
 import type { CodeStandards } from '@/lib/questionnaire/types';
 import type { StepProps } from '../step-renderer';
 import { SectionHeader } from '../section-header';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { OptionCardGroup } from '@/components/ui/option-card';
+import { FieldHelp } from '@/components/ui/field-help';
+import { getFieldHelp } from '@/lib/questionnaire/field-help';
 import {
   NAMING_CONVENTIONS_OPTIONS,
   ARCHITECTURE_STYLE_OPTIONS,
@@ -21,6 +24,7 @@ import {
 
 export default function StepCodeStandards({ onNext, onPrev, onSkip, isFirst, isLast, sectionMeta, stepNumber, totalSteps }: StepProps) {
   const { t } = useT();
+  const { locale } = useLocale();
   const { questionnaire, updateSection } = useAppStore();
   const existing = questionnaire.codeStandards;
 
@@ -35,6 +39,8 @@ export default function StepCodeStandards({ onNext, onPrev, onSkip, isFirst, isL
     updateSection('codeStandards', data);
     onNext();
   };
+
+  const h = (key: string) => getFieldHelp(key, locale);
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -85,8 +91,13 @@ export default function StepCodeStandards({ onNext, onPrev, onSkip, isFirst, isL
         )}
       />
 
-      <Textarea label={t('step07.loggingConvention')} {...register('loggingConvention')} />
-      <Textarea label={t('step07.commentConvention')} {...register('commentConvention')} />
+      <FieldHelp {...h('codeStandards.loggingConvention')!}>
+        <Textarea label={t('step07.loggingConvention')} {...register('loggingConvention')} />
+      </FieldHelp>
+
+      <FieldHelp {...h('codeStandards.commentConvention')!}>
+        <Textarea label={t('step07.commentConvention')} {...register('commentConvention')} />
+      </FieldHelp>
 
       <Controller
         name="importConvention"
@@ -118,10 +129,21 @@ export default function StepCodeStandards({ onNext, onPrev, onSkip, isFirst, isL
         )}
       />
 
-      <Textarea label={t('step07.versioningConvention')} {...register('versioningConvention')} />
-      <Textarea label={t('step07.prStructure')} {...register('prStructure')} />
-      <Textarea label={t('step07.linterFormatter')} {...register('linterFormatter')} />
-      <Textarea label={t('step07.blockingRules')} {...register('blockingLintRules')} />
+      <FieldHelp {...h('codeStandards.versioningConvention')!}>
+        <Textarea label={t('step07.versioningConvention')} {...register('versioningConvention')} />
+      </FieldHelp>
+
+      <FieldHelp {...h('codeStandards.prStructure')!}>
+        <Textarea label={t('step07.prStructure')} {...register('prStructure')} />
+      </FieldHelp>
+
+      <FieldHelp {...h('codeStandards.linterFormatter')!}>
+        <Textarea label={t('step07.linterFormatter')} {...register('linterFormatter')} />
+      </FieldHelp>
+
+      <FieldHelp {...h('codeStandards.blockingLintRules')!}>
+        <Textarea label={t('step07.blockingRules')} {...register('blockingLintRules')} />
+      </FieldHelp>
 
       <div className="flex justify-between pt-6 border-t mt-8">
         <div>{!isFirst && <Button type="button" variant="outline" onClick={onPrev}>{t('step.previous')}</Button>}</div>

@@ -19,6 +19,7 @@ import {
   CHANGE_PREFERENCE_OPTIONS,
   SPEED_VS_ROBUSTNESS_OPTIONS,
   PROTOTYPE_VS_PRODUCTION_OPTIONS,
+  MEMORY_PROVIDER_OPTIONS,
 } from '@/lib/questionnaire/option-data';
 import { useT } from '@/lib/i18n';
 
@@ -130,6 +131,29 @@ export default function StepAgentPrefs({ onNext, onPrev, onSkip, isFirst, isLast
           />
         )}
       />
+
+      <div className="mt-10 pt-8 border-t-2 border-dashed border-slate-200">
+        <Controller
+          name="memoryProvider"
+          control={control}
+          render={({ field }) => (
+            <div>
+              <div className="flex items-center gap-1.5 mb-3">
+                <span className="text-base font-bold text-slate-800 ml-1">{t('step20.memoryProvider')}</span>
+                <FieldTooltip
+                  tooltip="Claude Code loses context after compaction. This generates hooks that automatically summarize your conversation before compaction and restore it after — so Claude never forgets."
+                  examples={["Before compaction: AI summarizes all decisions, file changes, and next steps", "After compaction: summary is re-injected into Claude's context", "Cost: ~$0.01 per compaction with GPT-4o-mini"]}
+                />
+              </div>
+              <OptionCardGroup
+                options={MEMORY_PROVIDER_OPTIONS}
+                value={field.value ?? 'none'}
+                onChange={(v) => field.onChange(v)}
+              />
+            </div>
+          )}
+        />
+      </div>
 
       <div className="flex justify-between pt-6 border-t mt-8">
         <div>{!isFirst && <Button type="button" variant="outline" onClick={onPrev}>{t('step.previous')}</Button>}</div>

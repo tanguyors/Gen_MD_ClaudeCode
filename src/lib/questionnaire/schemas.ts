@@ -12,7 +12,7 @@ export const ProjectIdentitySchema = z.object({
   outputVerbosity: z.enum(['minimal', 'standard', 'detailed']).default('standard'),
 });
 
-// Agent Team Member
+// Agent Team Member (legacy)
 export const AgentTeamMemberSchema = z.object({
   name: z.string().min(1, 'Agent name is required'),
   role: z.string().min(1, 'Role is required'),
@@ -21,8 +21,12 @@ export const AgentTeamMemberSchema = z.object({
   rules: z.string().optional(),
 });
 
-// Agent Team Configuration
+// Sub-agents & Team Configuration
 export const AgentTeamSchema = z.object({
+  selectedAgents: z.array(z.string()).optional(),
+  selectedSkills: z.array(z.string()).optional(),
+  enableAgentTeam: z.boolean().default(false),
+  // Legacy fields
   members: z.array(AgentTeamMemberSchema).max(5).optional(),
   coordinationRules: z.string().optional(),
   delegationStrategy: z.string().optional(),
@@ -282,6 +286,8 @@ export const AgentPrefsSchema = z.object({
   changePreference: z.enum(['minimal', 'refactor']).optional(),
   speedVsRobustness: z.enum(['speed', 'balanced', 'robustness']).optional(),
   prototypeVsProduction: z.enum(['prototype', 'balanced', 'production']).optional(),
+  memoryProvider: z.enum(['none', 'openai', 'anthropic']).optional(),
+  memoryModel: z.string().optional(),
 });
 
 // Section 21: Code Policy

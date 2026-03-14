@@ -80,6 +80,10 @@ export interface SectionMeta {
   description: string;
   title_fr?: string;
   description_fr?: string;
+  whyItMatters?: string;
+  whyItMatters_fr?: string;
+  whenToSkip?: string;
+  whenToSkip_fr?: string;
   isRequired: boolean;
   isApplicable: (data: Partial<Questionnaire>) => boolean;
   category: 'core' | 'technical' | 'process' | 'collaboration';

@@ -5,17 +5,21 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { BusinessContextSchema } from '@/lib/questionnaire/schemas';
 import { useAppStore } from '@/lib/storage/store';
 import { useT } from '@/lib/i18n';
+import { useLocale } from '@/lib/i18n/context';
 import type { BusinessContext } from '@/lib/questionnaire/types';
 import type { StepProps } from '../step-renderer';
 import { SectionHeader } from '../section-header';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { OptionCardGroup } from '@/components/ui/option-card';
+import { FieldHelp } from '@/components/ui/field-help';
+import { getFieldHelp } from '@/lib/questionnaire/field-help';
 import { BUSINESS_CONSTRAINTS_OPTIONS } from '@/lib/questionnaire/option-data';
 import { getTargetUsersOptions, getSuccessKpisOptions } from '@/lib/questionnaire/contextual-options';
 
 export default function StepBusiness({ onNext, onPrev, onSkip, isFirst, isLast, sectionMeta, stepNumber, totalSteps }: StepProps) {
   const { t } = useT();
+  const { locale } = useLocale();
   const { questionnaire, updateSection } = useAppStore();
   const existing = questionnaire.business;
   const projectType = questionnaire.identity?.projectType;
@@ -32,11 +36,15 @@ export default function StepBusiness({ onNext, onPrev, onSkip, isFirst, isLast, 
     onNext();
   };
 
+  const h = (key: string) => getFieldHelp(key, locale);
+
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <SectionHeader sectionMeta={sectionMeta} stepNumber={stepNumber} totalSteps={totalSteps} />
 
-      <Textarea label={t('step01.problemSolved')} {...register('problemSolved')} />
+      <FieldHelp {...h('business.problemSolved')!}>
+        <Textarea label={t('step01.problemSolved')} {...register('problemSolved')} />
+      </FieldHelp>
 
       <Controller
         name="targetUsers"
@@ -53,8 +61,13 @@ export default function StepBusiness({ onNext, onPrev, onSkip, isFirst, isLast, 
         )}
       />
 
-      <Textarea label={t('step01.expectedOutcome')} {...register('expectedOutcome')} />
-      <Textarea label={t('step01.valueProposition')} {...register('valueProposition')} />
+      <FieldHelp {...h('business.expectedOutcome')!}>
+        <Textarea label={t('step01.expectedOutcome')} {...register('expectedOutcome')} />
+      </FieldHelp>
+
+      <FieldHelp {...h('business.valueProposition')!}>
+        <Textarea label={t('step01.valueProposition')} {...register('valueProposition')} />
+      </FieldHelp>
 
       <Controller
         name="successKpis"
@@ -87,7 +100,9 @@ export default function StepBusiness({ onNext, onPrev, onSkip, isFirst, isLast, 
         )}
       />
 
-      <Textarea label={t('step01.outOfScope')} {...register('outOfScope')} />
+      <FieldHelp {...h('business.outOfScope')!}>
+        <Textarea label={t('step01.outOfScope')} {...register('outOfScope')} />
+      </FieldHelp>
 
       <div className="flex justify-between pt-6 border-t mt-8">
         <div>{!isFirst && <Button type="button" variant="outline" onClick={onPrev}>{t('step.previous')}</Button>}</div>

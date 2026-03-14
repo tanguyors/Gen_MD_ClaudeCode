@@ -8,6 +8,8 @@ export interface OptionItem {
   value: string;
   label: string;
   label_fr?: string;
+  description?: string;
+  description_fr?: string;
   pros?: string[];
   pros_fr?: string[];
   cons?: string[];
@@ -27,6 +29,7 @@ export interface OptionCardGroupProps {
 function useLocalizedOption(option: OptionItem, locale: string) {
   return {
     label: locale === 'fr' && option.label_fr ? option.label_fr : option.label,
+    description: locale === 'fr' && option.description_fr ? option.description_fr : option.description,
     pros: locale === 'fr' && option.pros_fr ? option.pros_fr : option.pros,
     cons: locale === 'fr' && option.cons_fr ? option.cons_fr : option.cons,
   };
@@ -143,6 +146,10 @@ export function OptionCardGroup({
                   </div>
                 )}
               </div>
+
+              {localized.description && (
+                <p className="text-xs text-slate-500 leading-relaxed mb-2">{localized.description}</p>
+              )}
 
               <div className="space-y-1.5 mt-auto">
                 {localized.pros?.map((pro, i) => (

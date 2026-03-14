@@ -9,7 +9,7 @@ export const DEFAULT_QUESTIONNAIRE: Partial<Questionnaire> = {
     useAgentTeam: false,
     outputVerbosity: 'standard',
   },
-  agentTeam: {},
+  agentTeam: { enableAgentTeam: false, selectedAgents: [], selectedSkills: [] },
   references: {},
   business: {},
   techGoals: {},
