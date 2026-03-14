@@ -96,6 +96,7 @@ interface HeadingRule {
 const DETAIL_HEADING_RULES: HeadingRule[] = [
   // WHY section → business-goals
   { pattern: /^##\s+(why|business\s*context|goals)/i, target: 'business-goals' },
+  { pattern: /^##\s+references?\s*&?\s*inspiration/i, target: 'collaboration' },
 
   // WHAT sub-sections
   { pattern: /^###?\s+(repo\s*map|directory\s*structure)/i, target: 'architecture' },
@@ -105,6 +106,7 @@ const DETAIL_HEADING_RULES: HeadingRule[] = [
 
   // HOW sub-sections
   { pattern: /^###?\s+(code\s*standards?|naming|conventions?)/i, target: 'standards' },
+  { pattern: /^###?\s+always[- ]on\s*rules/i, target: 'standards' },
   { pattern: /^###?\s+security/i, target: 'security' },
   { pattern: /^###?\s+performance/i, target: 'quality' },
   { pattern: /^###?\s+testing/i, target: 'quality' },
@@ -113,17 +115,22 @@ const DETAIL_HEADING_RULES: HeadingRule[] = [
 
   // Supplementary
   { pattern: /^###?\s+(ux|ui|design\s*system)/i, target: 'ux-design' },
+  { pattern: /^###?\s+web\s*design\s*style/i, target: 'ux-design' },
   { pattern: /^###?\s+i18n|^###?\s+internation/i, target: 'i18n' },
   { pattern: /^###?\s+(ai|ml|machine\s*learning)/i, target: 'ai-ml' },
   { pattern: /^###?\s+documentation/i, target: 'collaboration' },
   { pattern: /^###?\s+(agent\s*pref|collaboration)/i, target: 'collaboration' },
+  { pattern: /^###?\s+reference\s*links?/i, target: 'collaboration' },
+  { pattern: /^###?\s+design\s*&?\s*style\s*pref/i, target: 'ux-design' },
   { pattern: /^###?\s+(code\s*(modification\s*)?policy)/i, target: 'standards' },
   { pattern: /^###?\s+(definition\s*of\s*done|dod\b)/i, target: 'standards' },
   { pattern: /^###?\s+governance/i, target: 'standards' },
+  { pattern: /^###?\s+(final\s*validation|validation\s*checklist)/i, target: 'standards' },
 
   // Appendix
   { pattern: /^###?\s+examples?/i, target: 'collaboration' },
   { pattern: /^###?\s+(pitfalls?|known\s*pitfalls?)/i, target: 'collaboration' },
+  { pattern: /^###?\s+always[- ]on\s*block/i, target: 'standards' },
 ];
 
 const ROOT_HEADING_RULES: RegExp[] = [
@@ -279,8 +286,15 @@ function classifyBlock(
     }
   }
 
-  // Unrecognized → stays in root (fail-safe)
-  rootParts.push(block);
+  // Unrecognized ## or ### headings → send to collaboration (catch-all)
+  // Only truly unknown content without headings stays in root
+  if (/^#{2,3}\s+/.test(heading)) {
+    const bucket = docBuckets.get('collaboration') ?? [];
+    bucket.push(block);
+    docBuckets.set('collaboration', bucket);
+  } else {
+    rootParts.push(block);
+  }
 }
 
 function splitContainerBlock(
@@ -337,8 +351,10 @@ function splitContainerBlock(
     }
 
     if (!matched) {
-      // Unrecognized sub-section → root
-      rootParts.push(sub);
+      // Unrecognized sub-section → collaboration (catch-all) to keep root concise
+      const bucket = docBuckets.get('collaboration') ?? [];
+      bucket.push(sub);
+      docBuckets.set('collaboration', bucket);
     }
   }
 }
