@@ -58,9 +58,9 @@ export function generateHookScripts(data: Partial<Questionnaire>): HooksOutput {
     content: generatePreCompactScript(memoryProvider),
   });
 
-  // 3. Post-compact restore script (bash)
+  // 3. Post-compact restore script (Node.js — cross-platform)
   files.push({
-    path: '.claude/hooks/post-compact-restore.sh',
+    path: '.claude/hooks/post-compact-restore.mjs',
     label: 'post-compact-restore',
     content: generatePostCompactScript(),
   });
@@ -180,17 +180,31 @@ function generatePreCompactScript(provider: string): string {
  * Output: JSON on stdout (optional additionalContext)
  */
 
-import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'fs';
+import { readFileSync, readSync, writeFileSync, mkdirSync, existsSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
+function readStdin() {
+  const chunks = [];
+  const buf = Buffer.alloc(1024);
+  try {
+    let bytesRead;
+    while ((bytesRead = readSync(process.stdin.fd, buf, 0, buf.length, null)) > 0) {
+      chunks.push(buf.subarray(0, bytesRead));
+    }
+  } catch {
+    // EOF or read error
+  }
+  return Buffer.concat(chunks).toString('utf-8');
+}
+
 async function main() {
-  // Read hook input from stdin
+  // Read hook input from stdin (cross-platform)
   let input;
   try {
-    const raw = readFileSync('/dev/stdin', 'utf-8');
+    const raw = readStdin();
     input = JSON.parse(raw);
   } catch {
     process.exit(0);
@@ -366,30 +380,53 @@ main().catch(() => process.exit(0));
 // ── Post-compact restore script ─────────────────────────────────────────────
 
 function generatePostCompactScript(): string {
-  return `#!/bin/bash
-# Post-compact restore hook
-# Re-injects the saved memory summary after context compaction.
-#
-# Triggered by: SessionStart hook with "compact" matcher
-# Output: stdout content is added to Claude's context
+  return `#!/usr/bin/env node
+/**
+ * Post-compact restore hook (Node.js — cross-platform)
+ * Re-injects the saved memory summary after context compaction.
+ *
+ * Triggered by: SessionStart hook with "compact" matcher
+ * Output: stdout content is added to Claude's context
+ */
 
-INPUT=$(cat)
-CWD=$(echo "$INPUT" | grep -o '"cwd":"[^"]*"' | cut -d'"' -f4)
+import { readFileSync, readSync, existsSync } from 'fs';
+import { join } from 'path';
 
-# Use project dir from hook input, fallback to current dir
-DIR="\${CWD:-.}/.claude/memory-backup"
+function readStdin() {
+  const chunks = [];
+  const buf = Buffer.alloc(1024);
+  try {
+    let bytesRead;
+    while ((bytesRead = readSync(process.stdin.fd, buf, 0, buf.length, null)) > 0) {
+      chunks.push(buf.subarray(0, bytesRead));
+    }
+  } catch {
+    // EOF or read error
+  }
+  return Buffer.concat(chunks).toString('utf-8');
+}
 
-if [ -f "$DIR/latest-summary.md" ]; then
-  echo ""
-  echo "=== MEMORY RESTORED AFTER COMPACTION ==="
-  echo ""
-  cat "$DIR/latest-summary.md"
-  echo ""
-  echo "=== END OF RESTORED MEMORY ==="
-  echo ""
-fi
+try {
+  const raw = readStdin();
+  const input = JSON.parse(raw);
+  const cwd = input.cwd || process.cwd();
+  const summaryPath = join(cwd, '.claude', 'memory-backup', 'latest-summary.md');
 
-exit 0
+  if (existsSync(summaryPath)) {
+    const summary = readFileSync(summaryPath, 'utf-8');
+    console.log('');
+    console.log('=== MEMORY RESTORED AFTER COMPACTION ===');
+    console.log('');
+    console.log(summary);
+    console.log('');
+    console.log('=== END OF RESTORED MEMORY ===');
+    console.log('');
+  }
+} catch {
+  // Silent fail — don't block Claude
+}
+
+process.exit(0);
 `;
 }
 
@@ -416,7 +453,7 @@ function generateSettingsJson(): string {
           hooks: [
             {
               type: 'command',
-              command: 'bash .claude/hooks/post-compact-restore.sh',
+              command: 'node .claude/hooks/post-compact-restore.mjs',
               timeout: 5000,
             },
           ],
@@ -458,7 +495,7 @@ Ajoutez cette variable à votre \`.bashrc\`, \`.zshrc\`, ou \`.env\`.
 ## Fichiers
 
 - \`pre-compact-backup.mjs\` — Script de sauvegarde (Node.js)
-- \`post-compact-restore.sh\` — Script de restauration (Bash)
+- \`post-compact-restore.mjs\` — Script de restauration (Node.js)
 - \`prompt-templates/summarize.txt\` — Prompt de résumé
 
 ## Dépannage
@@ -493,7 +530,7 @@ Add this to your \`.bashrc\`, \`.zshrc\`, or \`.env\`.
 ## Files
 
 - \`pre-compact-backup.mjs\` — Backup script (Node.js)
-- \`post-compact-restore.sh\` — Restore script (Bash)
+- \`post-compact-restore.mjs\` — Restore script (Node.js)
 - \`prompt-templates/summarize.txt\` — Summary prompt template
 
 ## Troubleshooting
