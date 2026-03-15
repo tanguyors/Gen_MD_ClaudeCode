@@ -1,5 +1,5 @@
 /**
- * Generates .claude/agents/ and .claude/skills/ stub files
+ * Generates .claude/agents/ and .claude/commands/ stub files
  * based on user-selected agents and skills from the catalogs.
  * Pure function — no side effects, no React dependencies.
  */
@@ -57,7 +57,7 @@ export function generateStubs(data: Partial<Questionnaire>): StubsOutput {
     prompt = injectSkillContext(prompt, skillItem, data);
 
     skills.push({
-      path: `.claude/skills/${skillItem.id}.md`,
+      path: `.claude/commands/${skillItem.id}.md`,
       label: skillItem.id,
       category: 'skill',
       content: `---

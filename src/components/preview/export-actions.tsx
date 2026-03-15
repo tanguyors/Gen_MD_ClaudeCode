@@ -2,23 +2,24 @@
 
 import { useState } from 'react';
 import { cn } from '@/lib/utils/cn';
-import { Download, Copy, Check, RefreshCw, Package, Bot, Brain } from 'lucide-react';
+import { Download, Copy, Check, RefreshCw, Package, Bot, Brain, Shield, FileText } from 'lucide-react';
 import { useT } from '@/lib/i18n';
-import type { SplitOutput } from '@/lib/generation/splitter';
 import type { StubsOutput } from '@/lib/generation/agent-stubs';
 import type { HooksOutput } from '@/lib/generation/hook-scripts';
+import type { RuleFile } from '@/lib/generation/rules-generator';
+import type { DocFile } from '@/lib/generation/docs-generator';
 
 interface ExportActionsProps {
   markdown: string;
-  splitOutput: SplitOutput | null;
-  splitMode: boolean;
+  rulesFiles: RuleFile[];
+  docsFiles: DocFile[];
   stubsOutput: StubsOutput | null;
   hooksOutput: HooksOutput | null;
   onRegenerate?: () => void;
   isGenerating?: boolean;
 }
 
-export function ExportActions({ markdown, splitOutput, splitMode, stubsOutput, hooksOutput, onRegenerate, isGenerating }: ExportActionsProps) {
+export function ExportActions({ markdown, rulesFiles, docsFiles, stubsOutput, hooksOutput, onRegenerate, isGenerating }: ExportActionsProps) {
   const [copied, setCopied] = useState(false);
   const { t } = useT();
 
@@ -36,24 +37,27 @@ export function ExportActions({ markdown, splitOutput, splitMode, stubsOutput, h
     const JSZip = (await import('jszip')).default;
     const zip = new JSZip();
 
-    if (splitOutput) {
-      zip.file('CLAUDE.md', splitOutput.root);
-      const agentDocsFolder = zip.folder('agent_docs');
-      for (const doc of splitOutput.agentDocs) {
-        agentDocsFolder!.file(doc.filename, doc.content);
-      }
-    } else {
-      zip.file('CLAUDE.md', markdown);
+    // Root CLAUDE.md
+    zip.file('CLAUDE.md', markdown);
+
+    // .claude/rules/*.md
+    for (const rule of rulesFiles) {
+      zip.file(rule.path, rule.content);
     }
 
-    // Add .claude/agents/ and .claude/skills/ stubs
+    // docs/*.md
+    for (const doc of docsFiles) {
+      zip.file(doc.path, doc.content);
+    }
+
+    // .claude/agents/ and .claude/commands/
     if (stubsOutput) {
       for (const stub of [...stubsOutput.agents, ...stubsOutput.skills]) {
         zip.file(stub.path, stub.content);
       }
     }
 
-    // Add .claude/hooks/ scripts for persistent memory
+    // .claude/hooks/
     if (hooksOutput?.enabled) {
       for (const hookFile of hooksOutput.files) {
         zip.file(hookFile.path, hookFile.content);
@@ -86,10 +90,12 @@ export function ExportActions({ markdown, splitOutput, splitMode, stubsOutput, h
     }
   };
 
-  const hasStubs = stubsOutput && (stubsOutput.agents.length > 0 || stubsOutput.skills.length > 0);
+  const agentCount = stubsOutput?.agents.length ?? 0;
+  const commandCount = stubsOutput?.skills.length ?? 0;
+  const hasStubs = agentCount > 0 || commandCount > 0;
   const hasHooks = hooksOutput?.enabled && hooksOutput.files.length > 0;
-  const hasSplit = splitMode && splitOutput && splitOutput.agentDocs.length > 0;
-  const showZip = hasSplit || hasStubs || hasHooks;
+  const totalFiles = 1 + rulesFiles.length + docsFiles.length + agentCount + commandCount + (hasHooks ? hooksOutput!.files.length : 0);
+  const showZip = rulesFiles.length > 0 || docsFiles.length > 0 || hasStubs || hasHooks;
 
   return (
     <div className="bg-white/70 backdrop-blur-sm border-2 border-white rounded-[2.5rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-8">
@@ -99,16 +105,28 @@ export function ExportActions({ markdown, splitOutput, splitMode, stubsOutput, h
         <div className="space-y-1 text-center mb-4">
           <div className="text-xs font-bold text-slate-400">
             <Package size={14} className="inline mr-1 -mt-0.5" />
-            {(hasSplit ? splitOutput!.agentDocs.length + 1 : 1) + (hasStubs ? stubsOutput!.agents.length + stubsOutput!.skills.length : 0) + (hasHooks ? hooksOutput!.files.length : 0)} {t('export.filesInBundle')}
+            {totalFiles} {t('export.filesInBundle')}
           </div>
+          {rulesFiles.length > 0 && (
+            <div className="text-[10px] font-bold text-[#0EA5E9]">
+              <Shield size={12} className="inline mr-1 -mt-0.5" />
+              {rulesFiles.length} rules
+            </div>
+          )}
+          {docsFiles.length > 0 && (
+            <div className="text-[10px] font-bold text-[#10B981]">
+              <FileText size={12} className="inline mr-1 -mt-0.5" />
+              {docsFiles.length} docs
+            </div>
+          )}
           {hasStubs && (
             <div className="text-[10px] font-bold text-[#8B5CF6]">
               <Bot size={12} className="inline mr-1 -mt-0.5" />
-              {stubsOutput!.agents.length} {t('stubs.agentCount')} + {stubsOutput!.skills.length} {t('stubs.skillCount')}
+              {agentCount} {t('stubs.agentCount')} + {commandCount} commands
             </div>
           )}
           {hasHooks && (
-            <div className="text-[10px] font-bold text-[#10B981]">
+            <div className="text-[10px] font-bold text-[#F59E0B]">
               <Brain size={12} className="inline mr-1 -mt-0.5" />
               Persistent Memory Hooks
             </div>

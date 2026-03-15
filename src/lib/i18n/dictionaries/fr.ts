@@ -59,7 +59,7 @@ export const fr: Record<DictionaryKey, string> = {
   'landing.compareRow1': 'Couvre les 27 sections',
   'landing.compareRow2': 'Amélioration IA (GPT-4o)',
   'landing.compareRow3': 'Contrôles qualité auto',
-  'landing.compareRow4': 'Export ZIP + agent_docs/',
+  'landing.compareRow4': 'Export ZIP + .claude/rules/ + docs/',
   'landing.compareRow5': 'Questionnaire guidé',
   'landing.compareRow6': 'i18n (EN/FR)',
 

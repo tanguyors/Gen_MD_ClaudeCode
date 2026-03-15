@@ -41,6 +41,8 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       markdown: result.markdown,
+      rules: result.rules.files,
+      docs: result.docs.files,
       method: result.method,
       model: result.model,
       tokenUsage: result.tokenUsage,

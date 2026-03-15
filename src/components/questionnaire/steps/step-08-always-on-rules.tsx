@@ -48,7 +48,7 @@ export default function StepAlwaysOnRules({ onNext, onPrev, onSkip, isFirst, isL
         <div className="flex items-center gap-1.5">
           <label className="block text-sm font-medium text-gray-700">Universal Rules</label>
           <FieldTooltip
-            tooltip="Rules the agent must ALWAYS follow, regardless of task. Keep them universal — task-specific rules belong in agent_docs/."
+            tooltip="Rules the agent must ALWAYS follow, regardless of task. Keep them universal — task-specific rules belong in .claude/rules/."
             examples={["Never push directly to main", "Always run typecheck before committing", "Never store secrets in code", "All API changes need @backend approval"]}
           />
         </div>

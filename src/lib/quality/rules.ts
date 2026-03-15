@@ -4,16 +4,16 @@ export const QUALITY_RULES: QualityRule[] = [
   {
     id: 'line-count',
     name: 'Line Count',
-    description: 'CLAUDE.md should be under 300 lines',
+    description: 'Root CLAUDE.md should be under 50 lines',
     severity: 'warning',
     check: (md) => {
       const lines = md.split('\n').length;
-      if (lines > 300) {
+      if (lines > 50) {
         return {
           ruleId: 'line-count',
           severity: 'warning',
-          message: `File has ${lines} lines (target: < 300)`,
-          suggestion: 'Move detailed content to agent_docs/*.md files',
+          message: `File has ${lines} lines (target: < 50)`,
+          suggestion: 'Conventions go in .claude/rules/, details in docs/',
         };
       }
       return null;

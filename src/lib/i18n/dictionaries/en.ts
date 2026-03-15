@@ -57,7 +57,7 @@ export const en = {
   'landing.compareRow1': 'Covers all 27 sections',
   'landing.compareRow2': 'AI enhancement (GPT-4o)',
   'landing.compareRow3': 'Auto quality checks',
-  'landing.compareRow4': 'Export to ZIP + agent_docs/',
+  'landing.compareRow4': 'Export to ZIP + .claude/rules/ + docs/',
   'landing.compareRow5': 'Guided questionnaire',
   'landing.compareRow6': 'i18n (EN/FR)',
 

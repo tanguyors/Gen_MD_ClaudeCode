@@ -2,16 +2,19 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import type { Questionnaire } from '@/lib/questionnaire/types';
 import type { QualityReport } from '@/lib/quality/types';
+import type { RuleFile } from '@/lib/generation/rules-generator';
+import type { DocFile } from '@/lib/generation/docs-generator';
 
 interface AppState {
   questionnaire: Partial<Questionnaire>;
   currentStep: number;
   generatedMarkdown: string | null;
+  generatedRules: RuleFile[];
+  generatedDocs: DocFile[];
   qualityReport: QualityReport | null;
   editedMarkdown: string | null;
   isGenerating: boolean;
   generationError: string | null;
-  splitMode: boolean;
 
   updateSection: <K extends keyof Questionnaire>(
     key: K,
@@ -19,11 +22,12 @@ interface AppState {
   ) => void;
   setCurrentStep: (step: number) => void;
   setGeneratedMarkdown: (md: string) => void;
+  setGeneratedRules: (rules: RuleFile[]) => void;
+  setGeneratedDocs: (docs: DocFile[]) => void;
   setEditedMarkdown: (md: string) => void;
   setQualityReport: (report: QualityReport) => void;
   setIsGenerating: (val: boolean) => void;
   setGenerationError: (err: string | null) => void;
-  setSplitMode: (val: boolean) => void;
   resetAll: () => void;
   resetGeneration: () => void;
 }
@@ -32,11 +36,12 @@ const INITIAL_STATE = {
   questionnaire: {} as Partial<Questionnaire>,
   currentStep: 0,
   generatedMarkdown: null as string | null,
+  generatedRules: [] as RuleFile[],
+  generatedDocs: [] as DocFile[],
   qualityReport: null as QualityReport | null,
   editedMarkdown: null as string | null,
   isGenerating: false,
   generationError: null as string | null,
-  splitMode: false,
 };
 
 export const useAppStore = create<AppState>()(
@@ -54,26 +59,26 @@ export const useAppStore = create<AppState>()(
 
       setCurrentStep: (step) => set({ currentStep: step }),
       setGeneratedMarkdown: (md) => set({ generatedMarkdown: md, editedMarkdown: md }),
+      setGeneratedRules: (rules) => set({ generatedRules: rules }),
+      setGeneratedDocs: (docs) => set({ generatedDocs: docs }),
       setEditedMarkdown: (md) => set({ editedMarkdown: md }),
       setQualityReport: (report) => set({ qualityReport: report }),
       setIsGenerating: (val) => set({ isGenerating: val }),
       setGenerationError: (err) => set({ generationError: err }),
-      setSplitMode: (val) => set({ splitMode: val }),
       resetAll: () => set(INITIAL_STATE),
       resetGeneration: () =>
-        set({ generatedMarkdown: null, editedMarkdown: null, qualityReport: null }),
+        set({ generatedMarkdown: null, editedMarkdown: null, generatedRules: [], generatedDocs: [], qualityReport: null }),
     }),
     {
       name: 'claudemd-generator-v1',
       storage: createJSONStorage(() => localStorage),
-      version: 3,
+      version: 4,
       migrate: (persisted, version) => {
         const state = persisted as Record<string, unknown>;
-        if (version < 2) {
-          return { ...state, generatedMarkdown: null, editedMarkdown: null, splitMode: false };
-        }
-        if (version < 3) {
-          return { ...state, splitMode: false };
+        if (version < 4) {
+          // Remove old splitMode, add new fields
+          const { splitMode: _sm, ...rest } = state as Record<string, unknown> & { splitMode?: boolean };
+          return { ...rest, generatedRules: [], generatedDocs: [] };
         }
         return persisted as AppState;
       },
@@ -82,7 +87,8 @@ export const useAppStore = create<AppState>()(
         currentStep: state.currentStep,
         generatedMarkdown: state.generatedMarkdown,
         editedMarkdown: state.editedMarkdown,
-        splitMode: state.splitMode,
+        generatedRules: state.generatedRules,
+        generatedDocs: state.generatedDocs,
       }),
     },
   ),

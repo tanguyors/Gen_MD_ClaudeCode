@@ -6,10 +6,9 @@ import { useAppStore } from '@/lib/storage/store';
 import { MarkdownEditor } from '@/components/preview/markdown-editor';
 import { QualityReportPanel } from '@/components/preview/quality-report';
 import { ExportActions } from '@/components/preview/export-actions';
-import { splitIntoFiles } from '@/lib/generation/splitter';
 import { generateStubs } from '@/lib/generation/agent-stubs';
 import { generateHookScripts } from '@/lib/generation/hook-scripts';
-import { Sparkles, AlertCircle, RefreshCw, ArrowLeft, FileText, FolderOpen, Bot } from 'lucide-react';
+import { Sparkles, AlertCircle, RefreshCw, ArrowLeft, FileText, Shield, FolderOpen, Bot } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
 import { useT } from '@/lib/i18n';
 
@@ -22,20 +21,21 @@ export default function PreviewPage() {
   const {
     questionnaire,
     generatedMarkdown,
+    generatedRules,
+    generatedDocs,
     editedMarkdown,
     qualityReport,
     isGenerating,
     generationError,
-    splitMode,
     setGeneratedMarkdown,
+    setGeneratedRules,
+    setGeneratedDocs,
     setEditedMarkdown,
     setQualityReport,
     setIsGenerating,
     setGenerationError,
-    setSplitMode,
   } = useAppStore();
 
-  // Wait for Zustand persist to fully hydrate from localStorage
   useEffect(() => {
     if (useAppStore.persist.hasHydrated()) {
       setHydrated(true);
@@ -54,7 +54,6 @@ export default function PreviewPage() {
     setGenerationError(null);
 
     const currentQuestionnaire = useAppStore.getState().questionnaire;
-    console.log('[ClaudeMD] Generation started, questionnaire keys:', Object.keys(currentQuestionnaire));
 
     try {
       const res = await fetch('/api/generate', {
@@ -63,21 +62,20 @@ export default function PreviewPage() {
         body: JSON.stringify({ questionnaire: currentQuestionnaire, useAI: true }),
       });
 
-      console.log('[ClaudeMD] API status:', res.status);
-
       if (!res.ok) {
         const errData = await res.json().catch(() => ({ error: `HTTP ${res.status}` }));
         throw new Error(errData.error || 'Generation failed');
       }
 
       const data = await res.json();
-      console.log('[ClaudeMD] Generated:', data.markdown?.length, 'chars, method:', data.method);
 
       if (!data.markdown) {
         throw new Error('Empty response from generation API');
       }
 
       setGeneratedMarkdown(data.markdown);
+      setGeneratedRules(data.rules ?? []);
+      setGeneratedDocs(data.docs ?? []);
 
       fetch('/api/quality', {
         method: 'POST',
@@ -90,20 +88,17 @@ export default function PreviewPage() {
         })
         .catch(() => {});
     } catch (err) {
-      console.error('[ClaudeMD] Generation error:', err);
       setGenerationError(err instanceof Error ? err.message : 'Unknown error');
     } finally {
       setIsGenerating(false);
     }
-  }, [setIsGenerating, setGenerationError, setGeneratedMarkdown, setQualityReport]);
+  }, [setIsGenerating, setGenerationError, setGeneratedMarkdown, setGeneratedRules, setGeneratedDocs, setQualityReport]);
 
   useEffect(() => {
     if (!hydrated) return;
     if (generationAttempted.current) return;
 
     const state = useAppStore.getState();
-    console.log('[ClaudeMD] Hydrated. generatedMarkdown:', state.generatedMarkdown?.length ?? 'null', 'questionnaire keys:', Object.keys(state.questionnaire));
-
     if (!state.generatedMarkdown && !state.isGenerating) {
       generationAttempted.current = true;
       handleGenerate();
@@ -112,61 +107,48 @@ export default function PreviewPage() {
 
   const displayMarkdown = editedMarkdown ?? generatedMarkdown ?? '';
 
-  // Compute split output when split mode is active
-  const splitOutput = useMemo(() => {
-    if (!splitMode || !displayMarkdown) return null;
-    return splitIntoFiles(displayMarkdown);
-  }, [splitMode, displayMarkdown]);
-
-  // Compute agent/skill stubs from questionnaire data
-  const stubsOutput = useMemo(() => {
-    return generateStubs(questionnaire);
-  }, [questionnaire]);
-
-  // Compute hook scripts for persistent memory
-  const hooksOutput = useMemo(() => {
-    return generateHookScripts(questionnaire);
-  }, [questionnaire]);
+  // Agent/skill stubs from questionnaire
+  const stubsOutput = useMemo(() => generateStubs(questionnaire), [questionnaire]);
+  const hooksOutput = useMemo(() => generateHookScripts(questionnaire), [questionnaire]);
 
   const allStubs = useMemo(() => {
     if (!stubsOutput) return [];
     return [...stubsOutput.agents, ...stubsOutput.skills];
   }, [stubsOutput]);
 
-  // Get content for the active tab
-  const activeTabContent = useMemo(() => {
-    // Check if active tab is a stub file
-    const stub = allStubs.find((s) => s.path === activeTab);
-    if (stub) return stub.content;
+  // All browseable files
+  const allFiles = useMemo(() => {
+    const files: Array<{ path: string; label: string; content: string; group: 'root' | 'rules' | 'docs' | 'stubs' }> = [];
 
-    if (!splitMode || !splitOutput) return displayMarkdown;
-    if (activeTab === 'CLAUDE.md') return splitOutput.root;
-    const doc = splitOutput.agentDocs.find((d) => `agent_docs/${d.filename}` === activeTab);
-    return doc?.content ?? '';
-  }, [splitMode, splitOutput, activeTab, displayMarkdown, allStubs]);
-
-  // Reset active tab when split mode changes or when a tab no longer exists
-  useEffect(() => {
-    const stubPaths = allStubs.map((s) => s.path);
-    if (!splitMode) {
-      // In single-file mode, only CLAUDE.md and stubs are valid
-      if (activeTab !== 'CLAUDE.md' && !stubPaths.includes(activeTab)) {
-        setActiveTab('CLAUDE.md');
-      }
-    } else if (splitOutput) {
-      const validTabs = [
-        'CLAUDE.md',
-        ...splitOutput.agentDocs.map((d) => `agent_docs/${d.filename}`),
-        ...stubPaths,
-      ];
-      if (!validTabs.includes(activeTab)) {
-        setActiveTab('CLAUDE.md');
-      }
+    for (const rule of generatedRules) {
+      files.push({ path: rule.path, label: rule.label, content: rule.content, group: 'rules' });
     }
-  }, [splitMode, splitOutput, activeTab, allStubs]);
+    for (const doc of generatedDocs) {
+      files.push({ path: doc.path, label: doc.label, content: doc.content, group: 'docs' });
+    }
+    for (const stub of allStubs) {
+      files.push({ path: stub.path, label: stub.label, content: stub.content, group: 'stubs' });
+    }
 
-  // Before hydration, show loading
-  if (!hydrated) {
+    return files;
+  }, [generatedRules, generatedDocs, allStubs]);
+
+  // Get content for active tab
+  const activeTabContent = useMemo(() => {
+    if (activeTab === 'CLAUDE.md') return displayMarkdown;
+    const file = allFiles.find((f) => f.path === activeTab);
+    return file?.content ?? '';
+  }, [activeTab, displayMarkdown, allFiles]);
+
+  // Reset tab if it no longer exists
+  useEffect(() => {
+    if (activeTab === 'CLAUDE.md') return;
+    const exists = allFiles.some((f) => f.path === activeTab);
+    if (!exists) setActiveTab('CLAUDE.md');
+  }, [activeTab, allFiles]);
+
+  // Loading states
+  if (!hydrated || isGenerating) {
     return (
       <div className="min-h-screen bg-[#FAF9F6] flex flex-col items-center justify-center p-6 font-sans relative overflow-hidden">
         <div className="absolute w-96 h-96 bg-[#FFD1C1] top-[-10%] left-[-5%] rounded-full blur-3xl -z-10 opacity-40" />
@@ -177,23 +159,7 @@ export default function PreviewPage() {
             <Sparkles className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[#FF8A71]" size={32} />
           </div>
           <h2 className="text-3xl font-black text-slate-900 mb-4">{t('preview.generating')}</h2>
-        </div>
-      </div>
-    );
-  }
-
-  if (isGenerating) {
-    return (
-      <div className="min-h-screen bg-[#FAF9F6] flex flex-col items-center justify-center p-6 font-sans relative overflow-hidden">
-        <div className="absolute w-96 h-96 bg-[#FFD1C1] top-[-10%] left-[-5%] rounded-full blur-3xl -z-10 opacity-40" />
-        <div className="absolute w-[30rem] h-[30rem] bg-[#D1FAE5] bottom-[-10%] right-[-5%] rounded-full blur-3xl -z-10 opacity-40" />
-        <div className="flex flex-col items-center text-center max-w-md">
-          <div className="relative mb-8">
-            <div className="w-20 h-20 border-4 border-[#FF8A71]/20 border-t-[#FF8A71] rounded-full animate-spin" />
-            <Sparkles className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[#FF8A71]" size={32} />
-          </div>
-          <h2 className="text-3xl font-black text-slate-900 mb-4">{t('preview.generating')}</h2>
-          <p className="text-slate-600 font-medium">{t('preview.generatingDesc')}</p>
+          {isGenerating && <p className="text-slate-600 font-medium">{t('preview.generatingDesc')}</p>}
         </div>
       </div>
     );
@@ -223,9 +189,12 @@ export default function PreviewPage() {
     );
   }
 
+  const rulesFiles = allFiles.filter((f) => f.group === 'rules');
+  const docsFiles = allFiles.filter((f) => f.group === 'docs');
+  const stubFiles = allFiles.filter((f) => f.group === 'stubs');
+
   return (
     <div className="min-h-screen bg-[#FAF9F6] px-6 py-12 lg:py-20 font-sans relative overflow-hidden">
-      {/* Background Orbs */}
       <div className="absolute w-96 h-96 bg-[#FFD1C1] top-[-5%] left-[-5%] rounded-full blur-3xl -z-10 opacity-40" />
       <div className="absolute w-[35rem] h-[35rem] bg-[#D1FAE5] bottom-[-10%] right-[-5%] rounded-full blur-3xl -z-10 opacity-40" />
       <div className="absolute w-80 h-80 bg-[#E9D5FF] top-[20%] right-[10%] rounded-full blur-3xl -z-10 opacity-40" />
@@ -246,44 +215,19 @@ export default function PreviewPage() {
             </h1>
           </div>
 
-          <div className="flex items-center gap-6">
-            {/* Split mode toggle */}
-            <div className="flex items-center gap-3">
-              <span className={cn('text-sm font-bold transition-colors', !splitMode ? 'text-slate-700' : 'text-slate-400')}>
-                {t('preview.singleFile')}
-              </span>
-              <button
-                onClick={() => setSplitMode(!splitMode)}
-                className={cn(
-                  'relative w-12 h-6 rounded-full transition-colors duration-200',
-                  splitMode ? 'bg-[#FF8A71]' : 'bg-slate-200',
-                )}
-              >
-                <span
-                  className={cn(
-                    'absolute top-0.5 w-5 h-5 bg-white rounded-full shadow-md transition-transform duration-200',
-                    splitMode ? 'translate-x-6' : 'translate-x-0.5',
-                  )}
-                />
-              </button>
-              <span className={cn('text-sm font-bold transition-colors', splitMode ? 'text-[#FF8A71]' : 'text-slate-400')}>
-                {t('preview.splitFiles')}
-              </span>
-            </div>
-
-            <button
-              onClick={() => router.push('/questionnaire')}
-              className="group flex items-center gap-2 text-slate-500 font-bold hover:text-[#FF8A71] transition-colors"
-            >
-              <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
-              {t('preview.backToQuestionnaire')}
-            </button>
-          </div>
+          <button
+            onClick={() => router.push('/questionnaire')}
+            className="group flex items-center gap-2 text-slate-500 font-bold hover:text-[#FF8A71] transition-colors"
+          >
+            <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
+            {t('preview.backToQuestionnaire')}
+          </button>
         </header>
 
         {/* File tabs */}
-        {(splitMode && splitOutput && splitOutput.agentDocs.length > 0) || allStubs.length > 0 ? (
+        {allFiles.length > 0 && (
           <div className="flex overflow-x-auto gap-2 mb-6 pb-2">
+            {/* Root */}
             <button
               onClick={() => setActiveTab('CLAUDE.md')}
               className={cn(
@@ -296,62 +240,92 @@ export default function PreviewPage() {
               <FileText size={14} />
               CLAUDE.md
             </button>
-            {splitMode && splitOutput && splitOutput.agentDocs.map((doc) => {
-              const tabKey = `agent_docs/${doc.filename}`;
-              return (
-                <button
-                  key={tabKey}
-                  onClick={() => setActiveTab(tabKey)}
-                  className={cn(
-                    'flex items-center gap-2 px-4 py-2 text-sm font-bold whitespace-nowrap rounded-xl transition-all border-2',
-                    activeTab === tabKey
-                      ? 'bg-[#FF8A71]/10 text-[#FF8A71] border-[#FF8A71]/20'
-                      : 'bg-white/50 text-slate-400 border-transparent hover:text-slate-600 hover:bg-white',
-                  )}
-                >
-                  <FolderOpen size={14} />
-                  {doc.filename}
-                </button>
-              );
-            })}
-            {allStubs.length > 0 && (splitMode && splitOutput && splitOutput.agentDocs.length > 0) && (
-              <div className="w-px bg-slate-200 mx-1 self-stretch" />
+
+            {/* Rules separator + tabs */}
+            {rulesFiles.length > 0 && (
+              <>
+                <div className="w-px bg-slate-200 mx-1 self-stretch" />
+                {rulesFiles.map((f) => (
+                  <button
+                    key={f.path}
+                    onClick={() => setActiveTab(f.path)}
+                    className={cn(
+                      'flex items-center gap-2 px-4 py-2 text-sm font-bold whitespace-nowrap rounded-xl transition-all border-2',
+                      activeTab === f.path
+                        ? 'bg-[#0EA5E9]/10 text-[#0EA5E9] border-[#0EA5E9]/20'
+                        : 'bg-white/50 text-slate-400 border-transparent hover:text-slate-600 hover:bg-white',
+                    )}
+                  >
+                    <Shield size={14} />
+                    {f.label}.md
+                  </button>
+                ))}
+              </>
             )}
-            {allStubs.map((stub) => (
-              <button
-                key={stub.path}
-                onClick={() => setActiveTab(stub.path)}
-                className={cn(
-                  'flex items-center gap-2 px-4 py-2 text-sm font-bold whitespace-nowrap rounded-xl transition-all border-2',
-                  activeTab === stub.path
-                    ? 'bg-[#8B5CF6]/10 text-[#8B5CF6] border-[#8B5CF6]/20'
-                    : 'bg-white/50 text-slate-400 border-transparent hover:text-slate-600 hover:bg-white',
-                )}
-              >
-                <Bot size={14} />
-                {stub.label}.md
-              </button>
-            ))}
+
+            {/* Docs separator + tabs */}
+            {docsFiles.length > 0 && (
+              <>
+                <div className="w-px bg-slate-200 mx-1 self-stretch" />
+                {docsFiles.map((f) => (
+                  <button
+                    key={f.path}
+                    onClick={() => setActiveTab(f.path)}
+                    className={cn(
+                      'flex items-center gap-2 px-4 py-2 text-sm font-bold whitespace-nowrap rounded-xl transition-all border-2',
+                      activeTab === f.path
+                        ? 'bg-[#10B981]/10 text-[#10B981] border-[#10B981]/20'
+                        : 'bg-white/50 text-slate-400 border-transparent hover:text-slate-600 hover:bg-white',
+                    )}
+                  >
+                    <FolderOpen size={14} />
+                    {f.label}.md
+                  </button>
+                ))}
+              </>
+            )}
+
+            {/* Stubs separator + tabs */}
+            {stubFiles.length > 0 && (
+              <>
+                <div className="w-px bg-slate-200 mx-1 self-stretch" />
+                {stubFiles.map((f) => (
+                  <button
+                    key={f.path}
+                    onClick={() => setActiveTab(f.path)}
+                    className={cn(
+                      'flex items-center gap-2 px-4 py-2 text-sm font-bold whitespace-nowrap rounded-xl transition-all border-2',
+                      activeTab === f.path
+                        ? 'bg-[#8B5CF6]/10 text-[#8B5CF6] border-[#8B5CF6]/20'
+                        : 'bg-white/50 text-slate-400 border-transparent hover:text-slate-600 hover:bg-white',
+                    )}
+                  >
+                    <Bot size={14} />
+                    {f.label}.md
+                  </button>
+                ))}
+              </>
+            )}
           </div>
-        ) : null}
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
           <div className="lg:col-span-2 flex flex-col gap-6 h-full">
             <MarkdownEditor
               value={activeTabContent}
               onChange={
-                activeTab === 'CLAUDE.md' && !splitMode
+                activeTab === 'CLAUDE.md'
                   ? setEditedMarkdown
-                  : () => {} // agent_docs and stubs are read-only
+                  : () => {}
               }
             />
           </div>
 
           <div className="flex flex-col gap-6">
             <ExportActions
-              markdown={activeTabContent}
-              splitOutput={splitOutput}
-              splitMode={splitMode}
+              markdown={displayMarkdown}
+              rulesFiles={generatedRules}
+              docsFiles={generatedDocs}
               stubsOutput={stubsOutput}
               hooksOutput={hooksOutput}
               onRegenerate={handleGenerate}

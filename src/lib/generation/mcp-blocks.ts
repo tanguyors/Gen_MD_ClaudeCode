@@ -979,3 +979,23 @@ export function getMcpBlock(id: string): string | undefined {
 export function getMcpBlocks(ids: string[]): string[] {
   return ids.map((id) => MCP_BLOCKS[id]).filter((b): b is string => !!b);
 }
+
+/** Returns table rows for the concise MCP table in root CLAUDE.md */
+export function getMcpTableRows(ids: string[]): Array<{ name: string; purpose: string; docLink?: string }> {
+  const rows: Array<{ name: string; purpose: string; docLink?: string }> = [];
+  for (const id of ids) {
+    const opt = MCP_OPTIONS.find((o) => o.id === id);
+    if (!opt) continue;
+    rows.push({
+      name: opt.label,
+      purpose: opt.description,
+      ...(id === 'gemini-design' ? { docLink: 'docs/mcp-workflows/gemini-design.md' } : {}),
+    });
+  }
+  return rows;
+}
+
+/** Returns the full Gemini Design workflow content for docs/mcp-workflows/ */
+export function getGeminiDesignWorkflow(): string {
+  return GEMINI_DESIGN_BLOCK;
+}
