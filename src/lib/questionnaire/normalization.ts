@@ -26,6 +26,8 @@ function deepNormalize(obj: unknown): unknown {
       const normalized = deepNormalize(value);
       if (normalized !== '' && normalized !== null && normalized !== undefined) {
         if (Array.isArray(normalized) && normalized.length === 0) continue;
+        // Skip empty nested objects (no meaningful content)
+        if (typeof normalized === 'object' && !Array.isArray(normalized) && Object.keys(normalized as Record<string, unknown>).length === 0) continue;
         result[key] = normalized;
       }
     }

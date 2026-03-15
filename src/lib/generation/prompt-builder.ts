@@ -24,6 +24,8 @@ Rules:
 - Remove redundant or overly verbose content
 - Ensure a new contributor can understand the file in under 5 minutes
 - If an Agent Team section is present, preserve each agent's @name, role, specialty, scope, and rules. Format them clearly so each sub-agent's responsibilities are unambiguous. Keep coordination rules and delegation strategy concise.
+- CRITICAL: Do NOT add sections, headings, or content that are not present in the template output. If a section is missing, it means the user did not provide that information — do NOT include it, do NOT add placeholder text, do NOT create empty sections.
+- Remove any section heading that has no meaningful content underneath it
 - Write in ${lang}
 
 Output ONLY the enhanced CLAUDE.md content. No preamble, no explanation.`;

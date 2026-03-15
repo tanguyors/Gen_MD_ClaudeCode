@@ -3,7 +3,11 @@ export function hasContent(obj: Record<string, unknown> | undefined): boolean {
   return Object.values(obj).some((v) => {
     if (typeof v === 'string') return v.trim().length > 0;
     if (Array.isArray(v)) return v.length > 0;
-    if (typeof v === 'boolean') return true;
+    if (typeof v === 'boolean') return v === true; // false is not content
+    if (typeof v === 'object' && v !== null) {
+      // Recursively check nested objects
+      return hasContent(v as Record<string, unknown>);
+    }
     return v != null;
   });
 }

@@ -419,10 +419,10 @@ function renderSupplementarySection(data: Partial<Questionnaire>): string {
     const items: Array<[string, string | undefined]> = [
       ['Task types', a.taskTypes],
       ['Autonomy', a.autonomyLevel],
-      ['Plan before coding', a.planBeforeCoding?.toString()],
+      ['Plan before coding', a.planBeforeCoding != null ? (a.planBeforeCoding ? 'Yes' : 'No') : undefined],
       ['Response format', a.responseFormat],
       ['Detail level', a.detailLevel],
-      ['Explain tradeoffs', a.alwaysExplainTradeoffs?.toString()],
+      ['Explain tradeoffs', a.alwaysExplainTradeoffs != null ? (a.alwaysExplainTradeoffs ? 'Yes' : 'No') : undefined],
       ['Change preference', a.changePreference],
       ['Speed vs robustness', a.speedVsRobustness],
       ['Prototype vs production', a.prototypeVsProduction],
